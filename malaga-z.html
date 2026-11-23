@@ -1,0 +1,2238 @@
+<!DOCTYPE html>
+<!-- MÁLAGA Z · novela — build autónomo 2026-11-23 · generado por tools/build.cjs · no editar a mano -->
+
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0a09">
+<title>MÁLAGA Z — Los días del silencio</title>
+<style>
+/* ============================================================
+   MÁLAGA Z · novela — tipografía primero, interfaz después.
+   ============================================================ */
+:root{
+  --ink:#0b0a09;
+  --ink-2:#121110;
+  --paper:#e8e1d4;
+  --paper-dim:#b9b1a3;
+  --ash:#7d776d;
+  --line:rgba(232,225,212,.13);
+  --blood:#c3312a;
+  --amber:#d9a441;
+  --teal:#6fb3a6;
+  --sans:"Bahnschrift SemiCondensed","Bahnschrift","DIN Alternate","Segoe UI",sans-serif;
+  --serif:Georgia,"Iowan Old Style","Palatino Linotype","Times New Roman",serif;
+  --mono:"Cascadia Mono","Consolas","Courier New",monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--ink);color:var(--paper);font-family:var(--serif)}
+body{overflow-x:hidden;-webkit-tap-highlight-color:transparent;text-rendering:optimizeLegibility}
+button{font-family:var(--sans);color:inherit;background:none;border:0;cursor:pointer}
+.hidden{display:none !important}
+::selection{background:rgba(195,49,42,.32)}
+
+#app{min-height:100dvh;display:flex;flex-direction:column;
+  background:
+    radial-gradient(120% 80% at 50% -10%,rgba(90,60,40,.13),transparent 60%),
+    radial-gradient(80% 60% at 50% 110%,rgba(30,40,50,.18),transparent 60%),
+    var(--ink);}
+
+/* ---------------- juego ---------------- */
+#play{flex:1;display:flex;flex-direction:column;min-height:100dvh}
+
+#topbar{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:flex-start;
+  gap:12px;padding:calc(10px + env(safe-area-inset-top)) 18px 10px;
+  background:linear-gradient(180deg,rgba(11,10,9,.97),rgba(11,10,9,.82) 70%,transparent);
+  backdrop-filter:blur(6px)}
+#place{font-family:var(--sans);font-size:10.5px;letter-spacing:.26em;color:var(--paper-dim);text-transform:uppercase}
+#clock{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;color:var(--ash);margin-top:3px}
+.tb-right{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.tbtn{font-size:9px;letter-spacing:.18em;color:var(--paper-dim);padding:6px 8px;border:1px solid transparent}
+.tbtn:hover,.tbtn:focus-visible{color:var(--paper);border-color:var(--line);outline:none}
+
+#stage{flex:1;width:100%;max-width:680px;margin:0 auto;padding:8px 22px 0;display:flex;flex-direction:column}
+#prose{padding-bottom:6px}
+#prose p{font-size:var(--read,19px);line-height:1.66;margin-bottom:.92em;color:#e7e0d3;letter-spacing:.002em}
+#prose p.dc::first-letter{float:left;font-size:3.05em;line-height:.82;padding:.02em .04em 0 0;margin-right:-3px;color:#f2ecdf}
+#prose p.beat{color:var(--paper-dim);font-style:italic}
+#prose em{color:#fff;font-style:italic}
+#prose strong{font-weight:700;color:#fff}
+
+#options{display:flex;flex-direction:column;gap:1px;margin:16px 0 26px;border-top:1px solid var(--line)}
+.opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px 4px;border-bottom:1px solid var(--line);
+  font-family:var(--serif);font-size:16.5px;line-height:1.35;color:#ded7c9;transition:background .12s,color .12s}
+.opt:hover,.opt:focus-visible{background:rgba(232,225,212,.045);color:#fff;outline:none}
+.opt .num{font-family:var(--mono);font-size:11px;color:var(--ash);width:16px;flex:0 0 16px}
+.opt .lbl{flex:1}
+.opt .req{font-family:var(--sans);font-size:9.5px;letter-spacing:.12em;color:var(--amber);white-space:nowrap;text-transform:uppercase}
+.opt .req.dc{color:var(--ash)}
+.opt.dis{opacity:.35;cursor:not-allowed}
+.opt.dis .req{color:var(--blood)}
+.opt.risk .lbl:after{content:"";display:inline-block;width:5px;height:5px;margin-left:8px;background:var(--blood);vertical-align:middle;transform:rotate(45deg)}
+
+#endnote{border:1px solid var(--line);border-left:2px solid var(--amber);padding:14px 16px;margin:6px 0 20px;
+  font-family:var(--sans);font-size:11px;letter-spacing:.14em;color:var(--paper-dim);line-height:1.7}
+#endnote b{color:var(--paper)}
+
+#status{position:sticky;bottom:0;z-index:18;display:flex;gap:14px;align-items:center;flex-wrap:wrap;
+  padding:10px 18px calc(10px + env(safe-area-inset-bottom));
+  background:linear-gradient(0deg,rgba(11,10,9,.98),rgba(11,10,9,.86) 60%,transparent);
+  backdrop-filter:blur(6px);border-top:1px solid rgba(232,225,212,.07)}
+.st{display:flex;flex-direction:column;gap:2px;min-width:44px}
+.st span{font-family:var(--sans);font-size:8px;letter-spacing:.2em;color:var(--ash)}
+.st b{font-family:var(--mono);font-size:12px;font-weight:400;color:var(--paper)}
+.st.wide{flex:1;min-width:120px;text-align:right}
+.st.wide span{color:var(--blood)}
+.st b.warn{color:var(--blood)}
+.st b.ok{color:var(--teal)}
+
+/* ---------------- pantallas ---------------- */
+.screen{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:28px 22px;overflow:auto;
+  background:radial-gradient(90% 70% at 50% 8%,rgba(70,40,30,.22),transparent 60%),rgba(8,7,7,.985)}
+#screenTitle{background:
+  radial-gradient(90% 70% at 50% 10%,rgba(90,50,36,.18),transparent 62%),
+  repeating-linear-gradient(112deg,#0a0a0a 0 42px,#0c0b0b 42px 84px);}
+.title-wrap{text-align:center;max-width:640px}
+.kicker{font-family:var(--sans);font-size:9.5px;letter-spacing:.48em;color:var(--ash)}
+.kicker.red{color:var(--blood)}
+h1{font-family:"Arial Black","Segoe UI Black","Bahnschrift",sans-serif;font-size:clamp(56px,13vw,116px);
+  line-height:.84;letter-spacing:-.02em;margin:.30em 0 .08em;color:var(--paper);text-shadow:0 6px 0 rgba(0,0,0,.55)}
+h1 span{color:var(--blood);text-shadow:0 0 46px rgba(195,49,42,.4)}
+.sub{font-family:var(--sans);font-size:clamp(10px,1.7vw,15px);letter-spacing:.6em;color:var(--paper-dim);padding-left:.6em;margin-top:10px}
+.kind{margin-top:14px;font-family:var(--mono);font-size:9px;letter-spacing:.26em;color:var(--ash)}
+.tag{margin:26px 0 26px;font-size:14px;line-height:1.8;color:var(--paper-dim)}
+.tag b{color:var(--paper)}
+.menu{display:flex;flex-direction:column;gap:8px;align-items:center}
+.big{min-width:260px;padding:14px 22px;font-size:12.5px;letter-spacing:.24em;background:var(--blood);color:#fff;
+  border:1px solid #d95046;transition:.15s;text-align:center}
+.big:hover{background:#d33b32;transform:translateY(-1px)}
+.big:disabled{background:#171615;border-color:var(--line);color:#4e4a44;cursor:not-allowed;transform:none}
+.big.ghost{background:transparent;border-color:var(--line);color:var(--paper-dim)}
+.big.ghost:hover{background:rgba(232,225,212,.05);color:#fff}
+.foot{margin-top:26px;font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:#4a4641;line-height:1.9}
+
+/* creación */
+#screenCreate{background:linear-gradient(180deg,rgba(9,8,8,.99),rgba(7,6,6,1));padding-bottom:0}
+.create{width:100%;max-width:880px;padding:8px 0 240px}
+.create h2{font-family:var(--sans);font-size:clamp(22px,3.6vw,34px);letter-spacing:.01em;margin:6px 0 10px;font-weight:600}
+.lead{font-size:13.5px;line-height:1.7;color:var(--paper-dim);max-width:66ch;margin-bottom:20px}
+.namelabel{display:block;font-family:var(--sans);font-size:9px;letter-spacing:.3em;color:var(--amber);margin-bottom:6px}
+#inp-name{width:min(320px,100%);background:rgba(255,255,255,.03);border:1px solid var(--line);border-bottom:1px solid var(--amber);
+  padding:10px 12px;color:#fff;font-family:var(--sans);font-size:17px;letter-spacing:.04em;outline:none;margin-bottom:22px}
+#inp-name:focus{border-color:rgba(217,164,65,.55)}
+.profs{display:grid;grid-template-columns:1fr 1fr;gap:2px;border-top:1px solid var(--line)}
+@media(max-width:720px){.profs{grid-template-columns:1fr}}
+.pcard{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);display:grid;
+  grid-template-columns:auto 1fr;gap:2px 14px;transition:background .12s}
+.pcard:hover{background:rgba(232,225,212,.04)}
+.pcard.sel{background:rgba(195,49,42,.10);box-shadow:inset 2px 0 0 var(--blood)}
+.pcard .sector{grid-column:1;font-family:var(--sans);font-size:8px;letter-spacing:.24em;color:var(--amber);align-self:start;padding-top:3px}
+.pcard .body{grid-column:2;display:flex;flex-direction:column;gap:3px}
+.pcard .ttl{display:block;font-family:var(--sans);font-size:14.5px;color:#eee7da;line-height:1.25}
+.pcard .age{font-family:var(--mono);font-size:9px;color:var(--ash);margin-left:8px;font-weight:400}
+.pcard .desc{display:block;font-size:11.5px;line-height:1.45;color:var(--paper-dim);margin-top:2px}
+.pcard .attrs{display:flex;gap:7px;margin-top:4px;font-family:var(--mono);font-size:9px;color:var(--ash);flex-wrap:wrap}
+.pcard .attrs b{color:var(--paper-dim);font-weight:400}
+.pcard .attrs .hi{color:var(--teal)}
+.createfoot{position:sticky;bottom:0;z-index:6;display:flex;justify-content:space-between;align-items:flex-end;gap:22px;flex-wrap:wrap;
+  margin-top:10px;padding:16px 0 calc(14px + env(safe-area-inset-bottom));
+  background:#080707;border-top:1px solid var(--line)}
+@media(max-width:720px){
+  .createfoot{flex-direction:column;align-items:stretch;gap:10px}
+  .goblock{align-items:stretch;margin-left:0}
+  .goblock .big{width:100%;min-width:0}
+  .gonote{text-align:left}
+}
+.preview{font-size:12px;line-height:1.7;color:var(--paper-dim);max-width:52ch;min-height:60px}
+.preview b{color:var(--paper)}
+.preview .dim{color:var(--ash);font-style:italic}
+.preview .tagline{color:var(--teal);font-family:var(--sans);font-size:10px;letter-spacing:.14em;display:block;margin-bottom:6px}
+.goblock{display:flex;flex-direction:column;gap:8px;align-items:flex-end;margin-left:auto}
+.gonote{font-family:var(--sans);font-size:8px;letter-spacing:.16em;color:var(--ash);text-align:right}
+
+/* muerte */
+.death{text-align:center;max-width:600px}
+.death h2{font-family:"Arial Black",sans-serif;font-size:clamp(34px,7vw,64px);letter-spacing:.01em;margin:8px 0 14px}
+.epitaph{font-size:16px;line-height:1.75;color:var(--paper-dim);margin:0 auto 22px;max-width:52ch;text-align:left}
+.epitaph p{margin-bottom:.8em}
+.dstats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:24px}
+.dstats div{background:#0a0909;padding:12px 8px}
+.dstats .n{font-family:var(--mono);font-size:18px;color:#fff}
+.dstats .l{font-family:var(--sans);font-size:8px;letter-spacing:.18em;color:var(--ash);margin-top:4px}
+
+/* ayuda */
+.how{max-width:820px}
+.how h2{font-family:var(--sans);font-size:clamp(20px,3vw,28px);margin-bottom:20px;letter-spacing:.02em}
+.howcols{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-bottom:24px}
+@media(max-width:700px){.howcols{grid-template-columns:1fr}}
+.how h3{font-family:var(--sans);font-size:9px;letter-spacing:.26em;color:var(--amber);margin:16px 0 8px}
+.how ul{list-style:none;font-size:12.5px;line-height:1.85;color:var(--paper-dim)}
+.how b{color:var(--paper)}
+
+/* ---------------- dados ---------------- */
+#dice{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:20px;background:rgba(5,4,4,.78);backdrop-filter:blur(3px)}
+.dice-card{width:min(420px,94vw);background:#0d0c0b;border:1px solid var(--line);border-top:2px solid var(--amber);
+  box-shadow:0 30px 80px rgba(0,0,0,.7);padding:14px 16px 16px;animation:dicein .16s ease-out}
+@keyframes dicein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.dice-top{display:flex;justify-content:space-between;font-family:var(--sans);font-size:8.5px;letter-spacing:.22em;color:var(--amber)}
+#dice-dc{color:var(--ash)}
+.dice-action{font-family:var(--serif);font-size:14.5px;line-height:1.4;color:#e9e2d5;margin:9px 0 12px}
+.dice-row{display:flex;align-items:center;gap:10px}
+.die{width:58px;height:58px;display:grid;place-items:center;border:1px solid rgba(232,225,212,.3);
+  font-family:var(--mono);font-size:25px;color:#fff;background:linear-gradient(160deg,#191817,#0c0b0b)}
+.die.small{width:38px;height:38px;font-size:16px;opacity:.55}
+.die.small.off{opacity:0;visibility:hidden}
+.dice-math{flex:1;display:flex;flex-direction:column;gap:2px;font-family:var(--sans);font-size:8.5px;letter-spacing:.14em;color:var(--ash)}
+.dice-math div{display:flex;justify-content:space-between;border-bottom:1px dotted rgba(232,225,212,.09);padding:2px 0}
+.dice-math b{font-family:var(--mono);font-size:11px;letter-spacing:0;color:var(--paper)}
+.dice-math .tot{border:0;margin-top:2px}
+.dice-math .tot b{font-size:15px}
+.dice-res{display:flex;justify-content:space-between;align-items:baseline;margin:12px 0 14px;
+  font-family:var(--sans);font-size:12px;letter-spacing:.18em;border-top:1px solid var(--line);padding-top:10px;color:var(--ash)}
+.dice-res .ok{color:#8fd08c}.dice-res .no{color:#e07168}.dice-res .crit{color:var(--amber)}
+.dice-card .big{width:100%;min-width:0;padding:11px}
+
+/* ---------------- panel ---------------- */
+#panel{position:fixed;inset:0;z-index:55;display:grid;place-items:center;padding:16px;background:rgba(5,4,4,.8);backdrop-filter:blur(3px)}
+.panel-card{width:min(760px,96vw);max-height:90dvh;overflow:auto;background:#0b0a0a;border:1px solid var(--line);border-top:2px solid var(--blood)}
+.panel-card header{position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:14px 18px;background:#0b0a0a;border-bottom:1px solid var(--line)}
+.panel-card h2{font-family:var(--sans);font-size:13px;letter-spacing:.24em;font-weight:600}
+.close{font-family:var(--sans);font-size:8.5px;letter-spacing:.18em;color:var(--ash);border:1px solid var(--line);padding:6px 9px}
+.close:hover{color:#fff;border-color:#fff}
+#panel-body{padding:16px 18px 26px;font-size:13.5px;line-height:1.6;color:var(--paper-dim)}
+#panel-body h3{font-family:var(--sans);font-size:9px;letter-spacing:.24em;color:var(--amber);margin:20px 0 8px}
+#panel-body h3:first-child{margin-top:0}
+.kv{display:flex;justify-content:space-between;gap:16px;border-bottom:1px dotted rgba(232,225,212,.1);padding:4px 0;font-size:12.5px}
+.kv b{font-family:var(--mono);color:var(--paper);font-weight:400}
+.panel-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 24px}
+@media(max-width:560px){.panel-grid{grid-template-columns:1fr}}
+.thread{border-left:2px solid var(--line);padding:2px 0 2px 10px;margin-bottom:9px;font-size:12.5px;line-height:1.5}
+.thread.open{border-color:var(--amber)}
+.hist{font-family:var(--mono);font-size:10.5px;color:var(--ash);border-bottom:1px dotted rgba(232,225,212,.07);padding:4px 0;line-height:1.5}
+.hist b{color:var(--paper-dim);font-weight:400}
+.itm{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:5px 0;border-bottom:1px dotted rgba(232,225,212,.08)}
+.itm .nm{flex:1}
+.itm .nm i{display:block;font-size:10.5px;color:var(--ash);font-style:normal}
+.use{font-family:var(--sans);font-size:8.5px;letter-spacing:.14em;color:var(--teal);border:1px solid rgba(111,179,166,.35);padding:4px 7px}
+.use:hover{background:rgba(111,179,166,.1)}
+.pill{display:inline-block;font-family:var(--sans);font-size:8px;letter-spacing:.14em;padding:2px 6px;border:1px solid var(--line);color:var(--paper-dim);margin:0 3px 3px 0}
+
+#loading{position:fixed;inset:0;z-index:99;display:grid;place-items:center;background:var(--ink);
+  font-family:var(--sans);font-size:9px;letter-spacing:.4em;color:var(--ash);transition:opacity .4s}
+#loading.done{opacity:0;pointer-events:none}
+
+@media (max-width:480px){
+  #stage{padding:6px 18px 0}
+  #prose p{font-size:18.5px}
+  .opt{font-size:16px;padding:15px 2px}
+  #status{gap:10px;padding:8px 14px calc(9px + env(safe-area-inset-bottom))}
+  .st{min-width:38px}
+  .st.wide{display:none}
+  #topbar{padding:calc(8px + env(safe-area-inset-top)) 14px 8px}
+  .tbtn{padding:7px 6px}
+}
+@media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
+
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ===================== JUEGO ===================== -->
+  <div id="play" class="hidden">
+    <header id="topbar">
+      <div class="tb-left">
+        <div id="place">PLAZA DE LA CONSTITUCIÓN</div>
+        <div id="clock">DÍA 1 · 08:40</div>
+      </div>
+      <div class="tb-right">
+        <button class="tbtn" data-panel="ficha" title="Ficha (F)">FICHA</button>
+        <button class="tbtn" data-panel="diario" title="Diario (J)">DIARIO</button>
+        <button class="tbtn" data-panel="ajustes" title="Ajustes">AJUSTES</button>
+      </div>
+    </header>
+
+    <main id="stage">
+      <article id="prose"></article>
+      <nav id="options" aria-label="Decisiones"></nav>
+      <div id="endnote" class="hidden"></div>
+    </main>
+
+    <footer id="status">
+      <div class="st"><span>VIDA</span><b id="st-hp">—</b></div>
+      <div class="st"><span>HAMBRE</span><b id="st-hu">—</b></div>
+      <div class="st"><span>SED</span><b id="st-th">—</b></div>
+      <div class="st"><span>FATIGA</span><b id="st-fa">—</b></div>
+      <div class="st"><span>ESTRÉS</span><b id="st-es">—</b></div>
+      <div class="st wide" id="st-wounds">SIN HERIDAS</div>
+    </footer>
+  </div>
+
+  <!-- ===================== TÍTULO ===================== -->
+  <div id="screenTitle" class="screen">
+    <div class="title-wrap">
+      <div class="kicker">MÁLAGA · AÑO CERO</div>
+      <h1>MALAGA<span>Z</span></h1>
+      <div class="sub">LOS DÍAS DEL SILENCIO</div>
+      <div class="kind">NOVELA DE SUPERVIVENCIA · 0.2</div>
+      <p class="tag">No hay salvación. Hay decisiones.<br><b>Una sola vida. Sin reinicios.</b></p>
+      <div class="menu">
+        <button id="btn-new" class="big">EMPEZAR</button>
+        <button id="btn-continue" class="big ghost" disabled>CONTINUAR</button>
+        <button id="btn-how" class="big ghost">CÓMO SE JUEGA</button>
+      </div>
+      <p class="foot">Prototipo jugable · Día 1, primera hora<br>Todo lo que leas cambia lo que viene después.</p>
+    </div>
+  </div>
+
+  <!-- ===================== CREACIÓN ===================== -->
+  <div id="screenCreate" class="screen hidden">
+    <div class="create">
+      <div class="kicker">FICHA DE SUPERVIVIENTE</div>
+      <h2>¿QUIÉN ERAS ANTES DEL SILENCIO?</h2>
+      <p class="lead">Nadie nace sabiendo sobrevivir. Elige de dónde vienes: define tus atributos, lo que sabes hacer y lo que llevabas encima esa mañana.</p>
+
+      <label class="namelabel" for="inp-name">NOMBRE</label>
+      <input id="inp-name" maxlength="24" autocomplete="off" spellcheck="false" placeholder="Escribe un nombre">
+
+      <div id="profs" class="profs" role="listbox" aria-label="Oficios"></div>
+
+      <div class="createfoot">
+        <div id="preview" class="preview"><span class="dim">Elige un oficio para ver la ficha.</span></div>
+        <div class="goblock">
+          <button id="btn-start" class="big" disabled>ENTRAR EN MÁLAGA</button>
+          <div class="gonote">SIN PUNTOS DE CONTROL · LA MUERTE BORRA LA PARTIDA</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== MUERTE ===================== -->
+  <div id="screenDeath" class="screen hidden">
+    <div class="death">
+      <div class="kicker red">FIN DE LA PARTIDA</div>
+      <h2 id="death-title">HAS MUERTO</h2>
+      <div id="death-text" class="epitaph"></div>
+      <div id="death-stats" class="dstats"></div>
+      <button id="btn-again" class="big">EMPEZAR DE NUEVO</button>
+      <p class="foot">No hay resurrecciones. No hay puntos de control. Málaga sigue sin ti.</p>
+    </div>
+  </div>
+
+  <!-- ===================== AYUDA ===================== -->
+  <div id="screenHow" class="screen hidden">
+    <div class="how">
+      <h2>CÓMO SE JUEGA</h2>
+      <div class="howcols">
+        <div>
+          <h3>LO ESENCIAL</h3>
+          <ul>
+            <li>Esto es una novela: se lee y se decide. No hay reflejos, no hay tiempo límite.</li>
+            <li>Cada decisión tiene consecuencias que pueden volver horas después.</li>
+            <li>Cuando hay riesgo real, se tira un <b>D20 + atributo + habilidad</b> y se ve el resultado.</li>
+            <li>Un 20 natural suma +5; un 1 natural resta −5. Nunca anula la lógica del mundo.</li>
+            <li>Si mueres, la partida se borra. No hay vuelta atrás.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>CONTROLES</h3>
+          <ul>
+            <li><b>1 – 9</b>: elegir una opción.</li>
+            <li><b>Enter</b>: continuar tras una tirada.</li>
+            <li><b>F</b> ficha · <b>J</b> diario · <b>Esc</b> cerrar.</li>
+            <li>Todo se puede tocar con el dedo. Se juega en vertical.</li>
+          </ul>
+          <h3>LO QUE NO VERÁS</h3>
+          <ul>
+            <li>No hay minimapa de amenazas ni barras de peligro.</li>
+            <li>No se marca la opción correcta. Muchas veces no hay ninguna.</li>
+          </ul>
+        </div>
+      </div>
+      <button id="btn-how-close" class="big">VOLVER</button>
+    </div>
+  </div>
+
+  <!-- ===================== DADOS ===================== -->
+  <div id="dice" class="hidden" role="dialog" aria-modal="true" aria-live="polite">
+    <div class="dice-card">
+      <div class="dice-top"><span id="dice-tag">TIRADA</span><span id="dice-dc"></span></div>
+      <p id="dice-action" class="dice-action"></p>
+      <div class="dice-row">
+        <div class="die" id="die1">?</div>
+        <div class="die small" id="die2">?</div>
+        <div class="dice-math">
+          <div><span>ATRIBUTOS</span><b id="dm-attr">—</b></div>
+          <div><span>HABILIDAD</span><b id="dm-skill">—</b></div>
+          <div><span>MODIFICADOR</span><b id="dm-mod">—</b></div>
+          <div class="tot"><span>TOTAL</span><b id="dm-total">—</b></div>
+        </div>
+      </div>
+      <div class="dice-res" id="dice-res">—</div>
+      <button id="dice-next" class="big">CONTINUAR</button>
+    </div>
+  </div>
+
+  <!-- ===================== PANEL ===================== -->
+  <div id="panel" class="hidden" role="dialog" aria-modal="true">
+    <div class="panel-card">
+      <header><h2 id="panel-title">FICHA</h2><button id="panel-close" class="close">CERRAR · ESC</button></header>
+      <div id="panel-body"></div>
+    </div>
+  </div>
+
+  <div id="loading">CARGANDO…</div>
+</div>
+
+<script>
+/* ---- js/util.js ---- */
+/* ============================================================
+   util.js — matemáticas, azar, tiempo, pequeñas ayudas
+   ============================================================ */
+window.MZ = window.MZ || {};
+(function (MZ) {
+  'use strict';
+
+  MZ.clamp = function (v, a, b) { return v < a ? a : (v > b ? b : v); };
+  MZ.lerp = function (a, b, t) { return a + (b - a) * t; };
+  MZ.dist = function (ax, ay, bx, by) { return Math.hypot(bx - ax, by - ay); };
+  MZ.dist2 = function (ax, ay, bx, by) { var dx = bx - ax, dy = by - ay; return dx * dx + dy * dy; };
+
+  MZ.angDiff = function (a, b) {
+    var d = (b - a + Math.PI) % (Math.PI * 2);
+    if (d < 0) d += Math.PI * 2;
+    return d - Math.PI;
+  };
+
+  MZ.smooth = function (t) { t = MZ.clamp(t, 0, 1); return t * t * (3 - 2 * t); };
+  MZ.damp = function (a, b, l, dt) { return MZ.lerp(a, b, 1 - Math.pow(1 - MZ.clamp(l, 0, 1), dt * 60)); };
+  MZ.sign = function (v) { return v < 0 ? -1 : (v > 0 ? 1 : 0); };
+
+  /* PRNG determinista (mulberry32): el mundo se puede reproducir con la misma semilla */
+  MZ.mulberry32 = function (seed) {
+    var a = seed >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  };
+  MZ.rnd = Math.random;
+  MZ.range = function (a, b) { return a + Math.random() * (b - a); };
+  MZ.irange = function (a, b) { return Math.floor(a + Math.random() * (b - a + 1)); };
+  MZ.choice = function (arr) { return arr[(Math.random() * arr.length) | 0]; };
+  MZ.chance = function (p) { return Math.random() < p; };
+  MZ.shuffle = function (arr) {
+    for (var i = arr.length - 1; i > 0; i--) { var j = (Math.random() * (i + 1)) | 0; var t = arr[i]; arr[i] = arr[j]; arr[j] = t; }
+    return arr;
+  };
+
+  MZ.pad2 = function (n) { return (n < 10 ? '0' : '') + n; };
+  MZ.fmtClock = function (mins) {
+    var m = ((Math.round(mins) % 1440) + 1440) % 1440;
+    return MZ.pad2(Math.floor(m / 60)) + ':' + MZ.pad2(m % 60);
+  };
+  MZ.fmtDur = function (mins) {
+    mins = Math.max(0, Math.round(mins));
+    var h = Math.floor(mins / 60), m = mins % 60;
+    return h > 0 ? h + ' h ' + MZ.pad2(m) + ' min' : m + ' min';
+  };
+
+  /* Dados: una única fuente de verdad para que todas las tiradas sean honestas */
+  MZ.d20 = function (advantage) {
+    var a = 1 + ((Math.random() * 20) | 0);
+    if (!advantage) return { roll: a, rolls: [a], kept: a, adv: 0 };
+    var b = 1 + ((Math.random() * 20) | 0);
+    var keep = advantage > 0 ? Math.max(a, b) : Math.min(a, b);
+    return { roll: keep, rolls: [a, b], kept: keep, adv: advantage };
+  };
+  MZ.d100 = function () { return 1 + ((Math.random() * 100) | 0); };
+  MZ.dN = function (n) { return 1 + ((Math.random() * n) | 0); };
+
+  MZ.signed = function (n) { return (n >= 0 ? '+' : '') + n; };
+
+  MZ.uid = (function () { var i = 0; return function (p) { i++; return (p || 'id') + '_' + i; }; })();
+
+  /* Texto: recorta, capitaliza, pluraliza */
+  MZ.cap = function (s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; };
+  MZ.plural = function (n, one, many) { return n === 1 ? one : many; };
+
+  /* Depuración silenciosa: nunca romper el bucle por un console.error en producción */
+  MZ.warn = function () {
+    if (window.MZ_DEBUG && window.console) console.warn.apply(console, arguments);
+  };
+})(window.MZ);
+
+</script>
+<script>
+/* ---- js/data.js ---- */
+/* ============================================================
+   data.js — contenido de la novela: oficios, objetos, escenas.
+   Todo el texto vive aquí. El motor no sabe nada de Málaga.
+   ============================================================ */
+(function (MZ) {
+  'use strict';
+
+  var N = {};
+
+  N.ATTRS = [
+    { k: 'fue', n: 'Fuerza' }, { k: 'agi', n: 'Agilidad' }, { k: 'res', n: 'Resistencia' },
+    { k: 'per', n: 'Percepción' }, { k: 'int', n: 'Inteligencia' }, { k: 'car', n: 'Carisma' }
+  ];
+  N.SKILLS = [
+    { k: 'atletismo', n: 'Atletismo' }, { k: 'pelea', n: 'Pelea' }, { k: 'armas', n: 'Armas' },
+    { k: 'sigilo', n: 'Sigilo' }, { k: 'medicina', n: 'Medicina' }, { k: 'mecanica', n: 'Mecánica' },
+    { k: 'persuasion', n: 'Persuasión' }, { k: 'callejeo', n: 'Callejeo' }
+  ];
+
+  /* ------------------------------------------------------------------
+     OBJETOS
+     ------------------------------------------------------------------ */
+  N.ITEMS = {
+    agua: { n: 'Botella de agua', d: 'Medio litro. Sabe a plástico caliente.', w: 0.5, use: { sed: 30 } },
+    lata: { n: 'Lata de atún', d: 'Aceite y sal. Un lujo.', w: 0.25, use: { hambre: 22 } },
+    barrita: { n: 'Barrita energética', d: 'Caducada hace ocho meses.', w: 0.06, use: { hambre: 12 } },
+    bocata: { n: 'Bocadillo de calamres', d: 'Ya está frío. Da igual.', w: 0.3, use: { hambre: 28 } },
+    vendas: { n: 'Vendas', d: 'Gasas y esparadrapo. Cortan una hemorragia si llegas a tiempo.', w: 0.12, use: { sangrado: 1, hp: 5 } },
+    botiquin: { n: 'Botiquín', d: 'Lo necesario para no morirse de algo tonto.', w: 1.1, use: { hp: 28, sangrado: 1 } },
+    analgesicos: { n: 'Analgésicos', d: 'Ibuprofeno de 600. No hace milagros.', w: 0.06, use: { hp: 3, estres: -20 } },
+    mascarilla: { n: 'Mascarilla FFP2', d: 'Contra el polvo y contra el olor.', w: 0.03 },
+    guantes: { n: 'Guantes de nitrilo', d: 'La sangre no atraviesa el nitrilo. Si no se rompen.', w: 0.04 },
+    mechero: { n: 'Mechero', d: 'Clípper. Queda gas.', w: 0.03 },
+    movil: { n: 'Móvil', d: '68 % de batería. Sin cobertura, por ahora.', w: 0.16 },
+    cartera: { n: 'Cartera', d: 'DNI, tarjeta y una foto que no vas a mirar.', w: 0.08 },
+    llaves: { n: 'Llaves', d: 'Casa, portal y taquilla del trabajo.', w: 0.05 },
+    linterna: { n: 'Linterna', d: 'Alumbra. También se ve desde lejos.', w: 0.24 },
+    radio: { n: 'Radio PMR', d: 'Canal 3. Solo ruido.', w: 0.3 },
+    sacacorchos: { n: 'Sacacorchos', d: 'Profesional. Poco marcial.', w: 0.08, weapon: 1 },
+    cuchillo: { n: 'Cuchillo de filetear', d: 'Mango de plástico, hoja larga. Afilado.', w: 0.2, weapon: 2 },
+    tijeras: { n: 'Tijeras de trauma', d: 'Cortan ropa, vendas y tejido.', w: 0.12, weapon: 1 },
+    porra: { n: 'Porra extensible', d: 'Acero. Contundente.', w: 0.55, weapon: 2 },
+    escalpelo: { n: 'Escalpelo', d: 'Precisión. No es un arma, pero corta.', w: 0.05, weapon: 1 },
+    navaja: { n: 'Navaja de campo', d: 'Una hoja que ha abierto más cosas de las que debería.', w: 0.1, weapon: 1 },
+    casco: { n: 'Casco de moto', d: 'Protege la cabeza. Aísla el sonido.', w: 0.9 },
+    toga: { n: 'Toga y maletín', d: 'Veintidós años de ejercicio a cuestas.', w: 1.4 },
+    documentos: { n: 'Documentación del caso', d: 'Un pleito que ya no le importa a nadie.', w: 0.4 },
+    cuaderno: { n: 'Cuaderno de campo', d: 'Muestras, horas y una hipótesis que no vas a poder comprobar.', w: 0.25 },
+    destornillador: { n: 'Destornillador', d: 'Plano. Sirve para más cosas de las que dice su nombre.', w: 0.12 },
+    silbato: { n: 'Silbato', d: 'Tres pitidos cortos. Señal de socorro.', w: 0.03 },
+    gafas: { n: 'Gafas de natación', d: 'Para no perder de vista lo que hay debajo.', w: 0.05 },
+    delantal: { n: 'Delantal', d: 'Manchado de harina y de otra cosa.', w: 0.15 },
+    semillas: { n: 'Puñado de semillas', d: 'De la vega. En otra vida, una cosecha.', w: 0.05 },
+    mapa: { n: 'Mapa de carreteras', d: 'A-7, A-45, la costa. Rutas que ya no existen.', w: 0.1 },
+    llaves_camion: { n: 'Llaves del camión', d: 'Un tráiler en el parking de la Alameda.', w: 0.06 },
+    llaves_moto: { n: 'Llaves de la moto', d: 'La moto está en la Alameda. O estaba.', w: 0.06 },
+    llaves_chiringuito: { n: 'Llaves del chiringuito', d: 'El Palo. Nevera, generador y una puerta que da al mar.', w: 0.06 },
+    formol: { n: 'Frasco de formol', d: 'Conserva lo que ya no respira.', w: 0.3 },
+    hilo: { n: 'Hilo de sutura', d: 'Aguja curva. Manos firmes.', w: 0.05, use: { hp: 8, sangrado: 1 } },
+    corbata: { n: 'Corbata', d: 'Seda. Podría servir de torniquete, si hiciera falta.', w: 0.08 },
+    caja_herramientas: { n: 'Caja de herramientas', d: 'Lo básico para abrir lo que no quiere abrirse.', w: 2.2 },
+    termo: { n: 'Termo de café', d: 'Frío. Da igual.', w: 0.4, use: { hambre: 4, estres: -4 } }
+  };
+
+  /* ------------------------------------------------------------------
+     OFICIOS — catorce maneras de estar en la plaza a las 08:40
+     ------------------------------------------------------------------ */
+  N.PROF = [
+    {
+      id: 'camarero', sector: 'HOSTELERÍA', title: 'Bar Larios', age: 34,
+      desc: 'Camarero en el bar de Larios. Doce horas de pie, propinas justas y mucha calle. Conoces a todo el mundo y no sabes callarte.',
+      attrs: { fue: 1, agi: 2, res: 1, per: 1, int: 1, car: 2 },
+      skills: { atletismo: 1, pelea: 0, armas: 0, sigilo: 1, medicina: 0, mecanica: 0, persuasion: 2, callejeo: 2 },
+      tags: ['calle', 'gente'],
+      items: [['mechero', 1], ['movil', 1], ['llaves', 1], ['agua', 1], ['sacacorchos', 1]],
+      opening: 'A las nueve entras a trabajar en el bar de Larios. Llevas el delantal en la mochila y veinte minutos de margen.',
+      perk: 'Conoces cada portal, cada camarero y cada policía de esta calle.'
+    },
+    {
+      id: 'enfermera', sector: 'SANIDAD', title: 'Clínico', age: 29,
+      desc: 'Enfermera en el Clínico. Turnos de noche, gente que se muere y gente que no debería. Manos firmes, poca paciencia para el drama.',
+      attrs: { fue: 0, agi: 1, res: 2, per: 2, int: 2, car: 1 },
+      skills: { atletismo: 0, pelea: 0, armas: 0, sigilo: 1, medicina: 3, mecanica: 0, persuasion: 1, callejeo: 1 },
+      tags: ['medico', 'sangre'],
+      items: [['botiquin', 1], ['guantes', 1], ['mascarilla', 1], ['tijeras', 1], ['agua', 1]],
+      opening: 'A las nueve empiezas el turno en el Clínico. Llevas el uniforme debajo de la ropa y el pelo recogido.',
+      perk: 'Sabes lo que es una hemorragia arterial y cuánto tarda alguien en morirse.'
+    },
+    {
+      id: 'vigilante', sector: 'SEGURIDAD', title: 'Centro comercial de Teatinos', age: 41,
+      desc: 'Vigilante de un centro comercial. Ex-militar de reemplazo, veinte kilos de más y un orgullo intacto. Nunca ha pegado a nadie fuera de servicio.',
+      attrs: { fue: 2, agi: 1, res: 2, per: 2, int: 0, car: 1 },
+      skills: { atletismo: 1, pelea: 2, armas: 1, sigilo: 1, medicina: 0, mecanica: 1, persuasion: 0, callejeo: 1 },
+      tags: ['fuerza', 'protocolo'],
+      items: [['porra', 1], ['linterna', 1], ['radio', 1], ['llaves', 1], ['agua', 1]],
+      opening: 'A las nueve empiezas el turno en el centro comercial de Teatinos. Llevas la porra, la linterna y el walkie con la batería a medias.',
+      perk: 'Sabes cómo se cierra un edificio y por dónde se sale cuando todo el mundo empuja hacia dentro.'
+    },
+    {
+      id: 'repartidor', sector: 'LOGÍSTICA', title: 'Reparto en moto', age: 26,
+      desc: 'Repartidor de comida. El centro, El Palo, Teatinos: tu mapa mental de Málaga no lo tiene nadie. Duermes cinco horas y hablas poco.',
+      attrs: { fue: 1, agi: 3, res: 2, per: 1, int: 1, car: 0 },
+      skills: { atletismo: 2, pelea: 1, armas: 0, sigilo: 1, medicina: 0, mecanica: 1, persuasion: 0, callejeo: 2 },
+      tags: ['rutas', 'motor'],
+      items: [['casco', 1], ['llaves_moto', 1], ['movil', 1], ['agua', 1], ['barrita', 2]],
+      opening: 'A las nueve tienes tres pedidos en el centro. La moto está en la Alameda y el móvil no deja de vibrar.',
+      perk: 'Conoces los callejones que no salen en Google Maps, y sabes cuándo una calle está mal.'
+    },
+    {
+      id: 'estudiante', sector: 'BELLAS ARTES', title: 'El Ejido', age: 22,
+      desc: 'Estudiante de Bellas Artes. Dibujas manos y cadáveres de animales. Tu padre dice que eso no es un trabajo. Tienes veintidós años y mucha suerte.',
+      attrs: { fue: 0, agi: 2, res: 0, per: 2, int: 2, car: 2 },
+      skills: { atletismo: 1, pelea: 0, armas: 0, sigilo: 2, medicina: 1, mecanica: 0, persuasion: 1, callejeo: 1 },
+      tags: ['ojo', 'manos'],
+      items: [['cuchillo', 1], ['cuaderno', 1], ['movil', 1], ['agua', 1], ['mechero', 1]],
+      opening: 'A las nueve tienes clase de dibujo en El Ejido. Llevas la libreta y un cúter que aún corta.',
+      perk: 'Observas. Es lo único que se te da bien y lo único que te va a salvar.'
+    },
+    {
+      id: 'abogado', sector: 'DERECHO', title: 'Despacho en calle Granada', age: 48,
+      desc: 'Veintidós años de ejercicio, un despacho con el nombre en la puerta y una vista a las nueve. Nunca has tenido que correr detrás de nada.',
+      attrs: { fue: -1, agi: 0, res: 0, per: 1, int: 2, car: 3 },
+      skills: { atletismo: 0, pelea: 0, armas: 0, sigilo: 0, medicina: 0, mecanica: 0, persuasion: 3, callejeo: 1 },
+      tags: ['legal', 'gente'],
+      items: [['toga', 1], ['documentos', 1], ['movil', 1], ['cartera', 1], ['agua', 1]],
+      opening: 'A las nueve tienes vista en el juzgado. Llevas la toga doblada en el maletín y el informe encima, por si el juez pregunta.',
+      perk: 'Sabes hablarle a alguien con autoridad. Y sabes cuándo la autoridad es solo un hombre asustado.'
+    },
+    {
+      id: 'funerario', sector: 'SERVICIOS', title: 'Tanatorio de Teatinos', age: 45,
+      desc: 'Funerario y extaxidermista. Preparas cuerpos para que parezcan dormidos. Tienes la calma de quien ha visto más muertos que vivos y un humor que incomoda.',
+      attrs: { fue: 1, agi: 1, res: 2, per: 2, int: 2, car: 0 },
+      skills: { atletismo: 0, pelea: 0, armas: 0, sigilo: 1, medicina: 2, mecanica: 1, persuasion: 0, callejeo: 1 },
+      tags: ['muerte', 'manos'],
+      items: [['escalpelo', 1], ['guantes', 1], ['hilo', 1], ['formol', 1], ['mechero', 1]],
+      opening: 'A las nueve recoges un cuerpo en el tanatorio de Teatinos. Llevas el maletín de instrumental y el olor de siempre metido en la ropa.',
+      perk: 'No te impresiona un cadáver. Sabes cuánto pesa, cómo se mueve y por dónde se rompe.'
+    },
+    {
+      id: 'biologo', sector: 'CIENCIA', title: 'Laboratorio del Clínico', age: 37,
+      desc: 'Investigador en biología. Tres muestras de agua del puerto sin analizar y un informe que no va a escribirse solo. La curiosidad te ha metido en más problemas que la mala suerte.',
+      attrs: { fue: 0, agi: 1, res: 1, per: 2, int: 4, car: 0 },
+      skills: { atletismo: 0, pelea: 0, armas: 0, sigilo: 1, medicina: 2, mecanica: 1, persuasion: 0, callejeo: 0 },
+      tags: ['ciencia', 'datos'],
+      items: [['cuaderno', 1], ['guantes', 1], ['mascarilla', 1], ['movil', 1], ['agua', 1]],
+      opening: 'A las nueve tienes que estar en el laboratorio: tres muestras de agua del puerto sin analizar y un informe que no va a escribirse solo.',
+      perk: 'Sabes que un brote tiene una curva. Y que la curva que estás viendo no es la de una gripe.'
+    },
+    {
+      id: 'automocion', sector: 'FORMACIÓN', title: 'Taller de automoción', age: 39,
+      desc: 'Profesor de automoción. Enseñas a chavales que no han abierto un capó en su vida. Tienes las manos manchadas y no te importa.',
+      attrs: { fue: 2, agi: 1, res: 2, per: 1, int: 2, car: 0 },
+      skills: { atletismo: 1, pelea: 1, armas: 0, sigilo: 0, medicina: 0, mecanica: 3, persuasion: 0, callejeo: 1 },
+      tags: ['tecnico', 'motor'],
+      items: [['caja_herramientas', 1], ['destornillador', 1], ['linterna', 1], ['llaves', 1], ['agua', 1]],
+      opening: 'A las nueve das clase de motores a chavales que no han abierto un capó en su vida. Llevas las manos manchadas y no te importa.',
+      perk: 'Abres lo que sea: una persiana, un cuadro eléctrico o el capó de un coche abandonado.'
+    },
+    {
+      id: 'camionero', sector: 'TRANSPORTE', title: 'Camión de larga distancia', age: 52,
+      desc: 'Camionero. Conoces cada polígono de la provincia y has dormido en la cabina más noches de las que admites. La ciudad te parece un sitio donde no se puede aparcar.',
+      attrs: { fue: 2, agi: 0, res: 2, per: 1, int: 1, car: 1 },
+      skills: { atletismo: 1, pelea: 0, armas: 0, sigilo: 0, medicina: 0, mecanica: 2, persuasion: 0, callejeo: 2 },
+      tags: ['rutas', 'fuerza'],
+      items: [['llaves_camion', 1], ['mapa', 1], ['termo', 1], ['mechero', 1], ['agua', 1]],
+      opening: 'A las nueve sales con carga hacia Antequera. El camión está en el parking de la Alameda y el café se te ha quedado frío en el termo.',
+      perk: 'Sabes cuánto aguanta un depósito, dónde hay gasoil y qué carretera no está cortada.'
+    },
+    {
+      id: 'natacion', sector: 'DEPORTE', title: 'Piscina de Ciudad Jardín', age: 31,
+      desc: 'Profesor de natación. Tienes la calma de quien pasa horas mirando el agua y el cuerpo de quien podría nadar hasta una boya si hiciera falta. En tierra te pones nervioso.',
+      attrs: { fue: 1, agi: 3, res: 2, per: 1, int: 1, car: 1 },
+      skills: { atletismo: 3, pelea: 0, armas: 0, sigilo: 1, medicina: 1, mecanica: 0, persuasion: 1, callejeo: 0 },
+      tags: ['agua', 'rescate'],
+      items: [['silbato', 1], ['gafas', 1], ['agua', 1], ['movil', 1], ['llaves', 1]],
+      opening: 'A las nueve tienes clase de natación con niños en Ciudad Jardín. Llevas el silbato al cuello y el cloro en las manos.',
+      perk: 'Aguantas la respiración, no entras en pánico en el agua y sabes sacar a alguien de ella.'
+    },
+    {
+      id: 'chiringuito', sector: 'HOSTELERÍA', title: 'Chiringuito en El Palo', age: 44,
+      desc: 'Hostelero. Tu chiringuito tiene generador, nevera y una puerta que da al mar. Alimentas a medio barrio en verano y conoces a los pescadores por su nombre.',
+      attrs: { fue: 1, agi: 1, res: 2, per: 1, int: 1, car: 3 },
+      skills: { atletismo: 0, pelea: 0, armas: 0, sigilo: 0, medicina: 1, mecanica: 1, persuasion: 2, callejeo: 2 },
+      tags: ['cocina', 'gente'],
+      items: [['llaves_chiringuito', 1], ['cuchillo', 1], ['mechero', 1], ['agua', 1], ['cartera', 1]],
+      opening: 'A las nueve abres el chiringuito de El Palo. El pescado llega a las diez y la nevera hace un ruido que llevas un mes ignorando.',
+      perk: 'Sabes cuánto dura la comida, cómo racionarla y cómo hacer que un grupo se siente a la misma mesa.'
+    },
+    {
+      id: 'cocinero', sector: 'COCINA', title: 'Cocina de un hotel', age: 36,
+      desc: 'Cocinero. Doscientos cubiertos y un turno de doce horas. Cuchillos afilados, manos rápidas y una paciencia que solo aparece cuando hay fuego.',
+      attrs: { fue: 1, agi: 2, res: 2, per: 2, int: 1, car: 1 },
+      skills: { atletismo: 0, pelea: 1, armas: 0, sigilo: 1, medicina: 0, mecanica: 0, persuasion: 1, callejeo: 1 },
+      tags: ['cocina', 'manos'],
+      items: [['cuchillo', 1], ['delantal', 1], ['mechero', 1], ['agua', 1], ['trapo', 1]],
+      opening: 'A las nueve entras en la cocina del hotel. Hoy hay doscientos cubiertos y un turno de doce horas.',
+      perk: 'Un cuchillo en tu mano no es un cuchillo: es una extensión. Y sabes cuánto aguanta la comida sin frío.'
+    },
+    {
+      id: 'agricultor', sector: 'CAMPO', title: 'Finca en la vega', age: 47,
+      desc: 'Agricultor. Tienes una finca en la vega, un tractor que arranca a la tercera y las manos como suelas. Has bajado al centro a por una pieza y ya vas tarde.',
+      attrs: { fue: 2, agi: 1, res: 3, per: 2, int: 1, car: 0 },
+      skills: { atletismo: 1, pelea: 0, armas: 0, sigilo: 1, medicina: 1, mecanica: 1, persuasion: 0, callejeo: 0 },
+      tags: ['agro', 'fuerza'],
+      items: [['navaja', 1], ['semillas', 1], ['cuerda', 1], ['mechero', 1], ['agua', 1]],
+      opening: 'A las nueve tienes que estar en la finca, en la vega. Has bajado al centro a por una pieza y ya vas tarde.',
+      perk: 'Lees el cielo, el agua y la tierra. Y tienes manos para lo que haga falta.'
+    }
+  ];
+
+  N.ITEMS.trapo = { n: 'Trapo de cocina', d: 'Servilleta dura. Sirve para lo que haga falta.', w: 0.1 };
+  N.ITEMS.cuerda = { n: 'Cuerda (8 m)', d: 'Nylon. Aguanta a un hombre.', w: 1.2 };
+
+  /* ------------------------------------------------------------------
+     ESCENAS · DÍA 1, ACTO I
+     ------------------------------------------------------------------ */
+  var S = {};
+
+  /* ---- plaza ---- */
+  S.plaza = {
+    place: 'PLAZA DE LA CONSTITUCIÓN', advance: 4,
+    text: function (s) {
+      return [
+        'El mármol devuelve un sol blanco que todavía no calienta. Huele a azahar y a gasoil. Hay dos coches parados en mitad de la calle, con las puertas abiertas, y nadie les hace caso. En el banco de piedra, un hombre con traje claro está sentado muy recto, mirando al suelo, con las manos sobre las rodillas.',
+        s.prof.opening,
+        'A tu alrededor, la ciudad hace lo que hace un lunes: nada, deprisa.'
+      ];
+    },
+    options: function (s) {
+      var o = [];
+      if (!s.flags.banco) o.push({ t: 'Acercarte al hombre del banco.', to: 'banco' });
+      if (!s.flags.paco_met) o.push({ t: 'Ir al kiosco. Paco está cargando revistas en un carrito.', to: 'paco' });
+      else o.push({ t: 'Volver al kiosco de Paco.', to: 'paco' });
+      if (!s.flags.nuria_met) o.push({ t: 'La farmacia de la esquina tiene la persiana a media asta.', to: 'farmacia' });
+      else o.push({ t: 'Asomarte otra vez a la farmacia.', to: 'farmacia' });
+      o.push({ t: 'Bajar por Larios.', to: 'larios' });
+      o.push({ t: 'Mirar el móvil.', to: 'movil' });
+      return o;
+    }
+  };
+
+  S.movil = {
+    place: 'PLAZA DE LA CONSTITUCIÓN', advance: 1,
+    text: [
+      'Tres notificaciones y la batería al sesenta y ocho.',
+      'Mamá: «Cariño, ¿estás bien? En la tele dicen que hay un virus en el centro. No vayas a trabajar. Llámame.»',
+      'Encargado: «Hoy no abras. No vengas. Luego te cuento.»',
+      'Grupo «Los del barrio»: «tío has visto lo de atarazanas???»',
+      'Le das la vuelta al móvil y lo guardas.'
+    ],
+    options: [{ t: 'Guardar el móvil.', to: 'plaza' }]
+  };
+
+  S.banco = {
+    place: 'PLAZA DE LA CONSTITUCIÓN', advance: 2,
+    text: [
+      'Te acercas sin prisa. El hombre no levanta la vista. Tiene la corbata floja y una mancha oscura en la camisa, a la altura del costado. Respira. O algo parecido: un silbido corto, regular, como una nevera vieja.',
+      'A dos pasos ves que le falta un zapato y que tiene los dedos de los pies amoratados.'
+    ],
+    options: [
+      { t: 'Tocarle el hombro.', to: 'banco_tocar', risk: true },
+      { t: 'Llamar al 112.', to: 'banco_112' },
+      { t: 'Dejarlo y volver a la plaza.', to: 'plaza' }
+    ]
+  };
+
+  S.banco_tocar = {
+    place: 'PLAZA DE LA CONSTITUCIÓN', advance: 2,
+    onEnter: function (s) { s.flags.banco = 1; s.stress = Math.min(100, s.stress + 14); },
+    text: [
+      'Le pones la mano en el hombro y el hombre se inclina hacia un lado, despacio, como una silla que pierde una pata. No opone nada. La cabeza le cae sobre el respaldo y la camisa se abre lo suficiente para ver la mordedura: un óvalo de piel arrancada en el cuello, ya sin sangre.',
+      'Está muerto. Lleva un rato muerto. Y nadie, en toda la plaza, ha llamado a nadie.'
+    ],
+    options: [{ t: 'Volver a la plaza.', to: 'plaza' }]
+  };
+
+  S.banco_112 = {
+    place: 'PLAZA DE LA CONSTITUCIÓN', advance: 2,
+    onEnter: function (s) { s.flags.banco = 1; s.stress = Math.min(100, s.stress + 8); },
+    text: [
+      'El 112 da una locución. «Todos nuestros operadores están ocupados. No cuelgue. Su llamada será atendida en el orden en que se ha recibido.»',
+      'Esperas cuarenta segundos. Al otro lado se oye gente hablando encima de otra gente. Cuelgas.'
+    ],
+    options: [{ t: 'Volver a la plaza.', to: 'plaza' }]
+  };
+
+  /* ---- Paco ---- */
+  S.paco = {
+    place: 'PLAZA DE LA CONSTITUCIÓN · KIOSCO', advance: 4,
+    text: function (s) {
+      var p = [];
+      p.push('El kiosco está abierto y vacío. Paco, setenta y tantos años, carga revistas en un carrito de la compra como si fueran ladrillos de oro. Al verte levanta dos dedos y sigue con lo suyo.');
+      p.push('—¿Tú trabajas aquí al lado, verdad? —dice, sin mirarte—. Se lo he dicho a la Guardia Civil: aquí hay algo malo. Y ellos, que no me preocupe, que es un brote. Un brote. Mi padre vivió la guerra y nunca vio a nadie andar así por la calle.');
+      if (s.flags.paco_told) {
+        p.push('—Como borrachos, pero no. Como si les faltara el aire y les sobrara el cuerpo. Uno se metió en la parada del bus de enfrente y se quedó de pie, mirando a la gente, con la boca abierta. Y la gente se reía. Se reían, chiquillo. Y luego el hombre se echó encima de una señora y no la soltaba.');
+      }
+      if (s.flags.paco_radio) {
+        p.push('—Dicen que el Ejército está en el aeropuerto y que han cerrado la A-7. Y que en el Clínico han cerrado urgencias. Mi hija está en el Regional, no en el Clínico. Eso es algo, ¿no? Eso es algo.');
+      }
+      if (s.flags.paco_water) {
+        p.push('Te ha dado una botella de agua sin pedirte dinero y ha vuelto a su carrito. «Anda, vete. Y no corras: correr llama la atención.»');
+      }
+      return p;
+    },
+    onEnter: function (s) { s.flags.paco_met = 1; },
+    options: function (s) {
+      var o = [];
+      if (!s.flags.paco_told) o.push({ t: '«¿Andar cómo?»', to: 'paco', do: function (s) { s.flags.paco_told = 1; } });
+      if (!s.flags.paco_radio) o.push({ t: '«¿Qué dicen en la radio?»', to: 'paco', do: function (s) { s.flags.paco_radio = 1; } });
+      if (!s.flags.paco_water) o.push({
+        t: '«¿Tienes agua? Te la pago.»', to: 'paco',
+        do: function (s) { s.flags.paco_water = 1; s.add('agua', 1); s.know('Paco', 'Kiosquero de la plaza. Tiene una hija enfermera en el Regional.'); }
+      });
+      o.push({ t: 'Dejarlo y volver a la plaza.', to: 'plaza' });
+      return o;
+    }
+  };
+
+  /* ---- Nuria ---- */
+  S.farmacia = {
+    place: 'FARMACIA CONSTITUCIÓN', advance: 4,
+    text: [
+      'La persiana está a media asta y detrás hay una mujer de unos cuarenta, con la mano en el cierre metálico, mirando la plaza como quien mira el mar antes de una tormenta.',
+      '—No la abras del todo. Por favor. ¿Qué está pasando ahí fuera? Lo he oído todo por la radio y no se parece a nada de lo que nos han contado.'
+    ],
+    onEnter: function (s) { s.flags.nuria_met = 1; s.know('Nuria', 'Farmacéutica de la Constitución. Tiene un hermano con fiebre, arriba.'); },
+    options: [
+      { t: '«¿Estás sola?»', to: 'farmacia_hermano' },
+      { t: '«Hay gente mordiendo a gente. Cierra y no salgas.»', check: { attr: 'car', skill: 'persuasion', dc: 13 }, ok: 'farmacia_ok', fail: 'farmacia_no', risk: true },
+      { t: '«Necesito vendas. Te las pago.»', to: 'farmacia_hermano' },
+      { t: '«No puedo ayudarte.»', to: 'plaza' }
+    ]
+  };
+
+  S.farmacia_hermano = {
+    place: 'FARMACIA CONSTITUCIÓN', advance: 3,
+    text: [
+      '—Sola no. Mi hermano está arriba, en el piso, con fiebre desde anoche. Dice que le duele todo. Le he dado paracetamol. Mucho. —Se le quiebra la voz en la última palabra—. ¿Tú has visto a alguien que se ponga así? ¿Que se ponga así y luego…?',
+      'Detrás de ella, la escalera del portal sube a oscuras.'
+    ],
+    options: [
+      { t: '«¿Le ha mordido alguien?»', to: 'farmacia_hermano', do: function (s) { s.flags.nuria_truth = 1; s.addThread('El hermano de Nuria tiene fiebre desde anoche. Ella no sabe si le mordieron.'); } },
+      { t: '«Si le ha mordido alguien, no subas. Baja la persiana y vete por el callejón.»', check: { attr: 'car', skill: 'persuasion', dc: 14 }, ok: 'farmacia_ok', fail: 'farmacia_no', risk: true },
+      { t: '«Sube y tráelo. Pero no dejes que se acerque a nadie.»', check: { attr: 'car', skill: 'persuasion', dc: 16 }, ok: 'farmacia_ok', fail: 'farmacia_no', risk: true },
+      { t: 'Dejarlo y volver a la plaza.', to: 'plaza' }
+    ]
+  };
+
+  S.farmacia_ok = {
+    place: 'FARMACIA CONSTITUCIÓN', advance: 3,
+    onEnter: function (s) {
+      s.add('vendas', 2); s.add('analgesicos', 2);
+      s.flags.nuria_saved = 1;
+      s.closeThread('El hermano de Nuria');
+      s.addThread('Nuria se ha encerrado con su hermano. No sabes si volverás a verla.');
+    },
+    text: [
+      'Durante un segundo parece que va a gritarte. Después se le apaga la cara y asiente, muy despacio, como si acabara de firmar algo.',
+      '—Le quiero. ¿Lo entiendes? Le quiero y no voy a poder hacerlo.',
+      'Baja la persiana del todo, sin ruido. Antes de cerrar te pasa por debajo un paquete de gasas y dos pastillas.'
+    ],
+    options: [{ t: 'Guardarlo y volver a la plaza.', to: 'plaza' }]
+  };
+
+  S.farmacia_no = {
+    place: 'FARMACIA CONSTITUCIÓN', advance: 2,
+    onEnter: function (s) { s.flags.nuria_cold = 1; },
+    text: [
+      '—No. —La palabra le sale plana—. Tú no tienes ni idea de lo que es esto. Mi hermano está arriba y yo no me voy a ningún sitio sin él.',
+      'La persiana baja un palmo más. Al otro lado, su voz suena ya apagada: «No vuelvas sin saber qué es esto.»'
+    ],
+    options: [{ t: 'Volver a la plaza.', to: 'plaza' }]
+  };
+
+  /* ---- Larios ---- */
+  S.larios = {
+    place: 'CALLE LARIOS', advance: 5,
+    text: [
+      'Larios está vacía hasta la iglesia. Las sillas de la terraza están apiladas y una ha rodado hasta el centro de la calle. Huele a fritura y a basura.',
+      'A lo lejos, junto al toldo rojo de la tienda de souvenirs, hay una figura de pie, muy quieta, con la cabeza ladeada como si escuchara el suelo.',
+      'No debería estar quieta.'
+    ],
+    options: [
+      { t: 'Bajar hacia la figura y ver qué le pasa.', to: 'contacto', do: function (s) { if (!s.foe) s.foe = { hp: 2, dist: 8, round: 1 }; }, risk: true },
+      { t: 'Entrar en el bar.', to: 'bar_1' },
+      { t: 'Cruzar a la acera y seguir hasta la Alameda.', check: { attr: 'agi', skill: 'sigilo', dc: 12 }, ok: 'alameda', fail: 'contacto', risk: true },
+      { t: 'Volver a la plaza.', to: 'plaza' }
+    ]
+  };
+
+  /* ---- Bar ---- */
+  S.bar_1 = {
+    place: 'BAR LARIOS', advance: 3,
+    text: [
+      'La persiana del bar está a media asta. Dentro huele a fritura vieja y a algo dulce que no quieres identificar. Por el hueco ves una silla volcada, un móvil encendido en el suelo y la radio de la cocina hablando sola.',
+      'La puerta está cerrada con llave.'
+    ],
+    options: [
+      {
+        t: 'Forzar la persiana.', risk: true,
+        check: { attr: 'fue', skill: 'atletismo', dc: 12, mod: function (s) { return s.hasTag('tecnico') ? 3 : 0; } },
+        ok: 'bar_2', fail: 'bar_fail', cost: { fatiga: 6 }
+      },
+      { t: 'Llamar: «¿Hay alguien?»', to: 'bar_call' },
+      { t: 'Dejarlo y volver a Larios.', to: 'larios' }
+    ]
+  };
+
+  S.bar_call = {
+    place: 'BAR LARIOS', advance: 2,
+    text: [
+      'Nadie contesta. La radio, dentro, sigue hablando: «…se recomienda evitar el centro histórico. Se han registrado incidentes en la Alameda y en la zona de Atarazanas…»',
+      'Al fondo de la calle, la figura que estaba quieta ya no está quieta.'
+    ],
+    options: [
+      { t: 'Forzar la persiana, rápido.', check: { attr: 'fue', skill: 'atletismo', dc: 13 }, ok: 'bar_2', fail: 'bar_fail', risk: true },
+      { t: 'Volver a la plaza.', to: 'plaza' }
+    ]
+  };
+
+  S.bar_fail = {
+    place: 'BAR LARIOS', advance: 2,
+    onEnter: function (s) { s.noise += 2; s.stress = Math.min(100, s.stress + 12); s.flags.bar_failed = 1; },
+    text: [
+      'La persiana cede un dedo, luego se atasca. El chirrido metálico atraviesa la calle de lado a lado y rebota en las fachadas. Te quedas quieto, con la mano en el metal caliente.',
+      'Al fondo, la figura ha dejado de mirar el suelo.'
+    ],
+    options: [
+      { t: 'Forzar otra vez, con todo el peso.', check: { attr: 'fue', skill: 'atletismo', dc: 14 }, ok: 'bar_2', fail: 'contacto', risk: true },
+      { t: 'Dejarlo y bajar hacia la Alameda.', to: 'alameda' }
+    ]
+  };
+
+  S.bar_2 = {
+    place: 'BAR LARIOS · INTERIOR', advance: 3,
+    onEnter: function (s) { s.flags.bar_open = 1; },
+    text: function (s) {
+      var p = [
+        'Dentro está oscuro y hace frío. La radio dice que se evite el centro. Detrás de la barra hay un hombre con el delantal puesto, boca abajo, con un charco que ha llegado hasta la máquina del café. No se mueve.',
+        'En el mostrador, un cuchillo de filetear y una botella de agua a medio abrir. En la cocina hay una puerta que da al callejón.'
+      ];
+      if (s.flags.bar_looted) p.push('Ya has cogido lo que había. El hombre sigue boca abajo.');
+      return p;
+    },
+    options: function (s) {
+      var o = [];
+      if (!s.has('cuchillo')) o.push({
+        t: 'Coger el cuchillo de filetear.', to: 'bar_2',
+        do: function (s) { s.add('cuchillo', 1); s.flags.bar_looted = 1; }
+      });
+      if (!s.flags.bar_water) o.push({
+        t: 'Coger el agua y la cartera del hombre.', to: 'bar_2',
+        do: function (s) { s.flags.bar_water = 1; s.add('agua', 1); s.add('cartera', 1); s.flags.bar_looted = 1; }
+      });
+      o.push({ t: 'Escuchar la radio un momento.', to: 'bar_radio' });
+      o.push({ t: 'Salir.', to: 'bar_3' });
+      return o;
+    }
+  };
+
+  S.bar_radio = {
+    place: 'BAR LARIOS · INTERIOR', advance: 2,
+    text: [
+      '«…el Ministerio del Interior declara el estado de alarma en la provincia de Málaga. Se pide a la población que permanezca en sus casas. No se trata de una intoxicación alimentaria. Repetimos: no es una intoxicación alimentaria. Los afectados presentan agresividad extrema y resistencia al dolor…»',
+      'La voz del locutor tiembla en la última frase. Luego vuelve a empezar el boletín, igual, como si nada.'
+    ],
+    onEnter: function (s) { s.know('Radio', 'Estado de alarma en la provincia. No es una intoxicación alimentaria.'); s.addThread('La radio dice que no es una intoxicación. Y que no salgamos.'); },
+    options: [{ t: 'Apagar la radio.', to: 'bar_2' }]
+  };
+
+  S.bar_3 = {
+    place: 'BAR LARIOS', advance: 1,
+    onEnter: function (s) { if (!s.foe) s.foe = { hp: 2, dist: 6, round: 1 }; },
+    text: [
+      'Al girarte, hay una silueta recortada contra la persiana. No ha entrado: está de pie en el hueco, con la cabeza ladeada y los brazos un poco separados del cuerpo, como alguien que espera instrucciones.',
+      'Luego da un paso.'
+    ],
+    options: [{ t: 'Prepararte.', to: 'contacto' }]
+  };
+
+  /* ---- Contacto ---- */
+  S.contacto = {
+    place: 'CALLE LARIOS', advance: 1,
+    text: function (s) {
+      var d = s.foe ? s.foe.dist : 6;
+      var first = [
+        'Está a ' + d + ' metros. Viene directo, con la boca abierta y las manos por delante, y no hace ningún ruido que se parezca a un humano.',
+        'Detrás de ti, la persiana del bar está a media asta. El portal, tres pasos a la derecha.'
+      ];
+      var later = [
+        'Está a ' + d + ' metros y no se detiene. Tienes el pulso en las orejas y la boca seca.',
+        'No hay tiempo para pensar. Solo para elegir.'
+      ];
+      var p = (s.foe && s.foe.round > 1) ? later : first;
+      if (s.foe && s.foe.round >= 3) p.push('Se te ha echado encima. Ya no hay distancia.');
+      return p;
+    },
+    options: function (s) {
+      var o = [];
+      var f = s.foe || { hp: 2, dist: 6, round: 1 };
+      var armed = s.bestWeapon() ? 2 : 0;
+      o.push({
+        t: 'Golpear con lo que llevas.', risk: true,
+        check: { attr: 'fue', skill: 'pelea', dc: 12 + Math.max(0, f.round - 1), mod: armed },
+        ok: 'golpe', fail: 'dano'
+      });
+      o.push({
+        t: 'Empujar y correr hacia el portal.', risk: true,
+        check: { attr: 'agi', skill: 'atletismo', dc: 14, mod: s.flags.bar_failed ? -1 : 0 },
+        ok: 'huir', fail: 'dano'
+      });
+      if (s.flags.bar_open) o.push({
+        t: 'Meterte bajo la persiana del bar.', risk: true,
+        check: { attr: 'agi', skill: 'sigilo', dc: 16 },
+        ok: 'huir_bar', fail: 'dano'
+      });
+      o.push({
+        t: 'Enseñarle las manos y hablarle.', risk: true,
+        check: { attr: 'car', skill: 'persuasion', dc: 18 },
+        ok: 'dano', fail: 'dano'
+      });
+      o.push({ t: 'Quedarte quieto y esperar.', to: 'dano', risk: true });
+      return o;
+    }
+  };
+
+  S.golpe = {
+    place: 'CALLE LARIOS', advance: 1,
+    onEnter: function (s) {
+      s.foe.hp -= 1;
+      s.stress = Math.min(100, s.stress + 10);
+      if (s.foe.hp > 0) { s.foe.dist = 2; s.foe.round += 1; }
+    },
+    text: [
+      'Le aciertas en la sien con toda tu fuerza. La cabeza se va a un lado y el cuerpo da medio paso atrás, pero no cae. No hace ningún ruido. Eso es lo que te hiela: no hay queja, no hay dolor, solo el siguiente paso.'
+    ],
+    options: function (s) {
+      var f = s.foe || { hp: 2, dist: 2, round: 1 };
+      if (f.hp <= 0) return [{ t: 'Verlo caer.', to: 'win' }];
+      return [{ t: 'Seguir.', to: 'contacto' }];
+    }
+  };
+
+  S.dano = {
+    place: 'CALLE LARIOS', advance: 1,
+    onEnter: function (s) {
+      var dmg = MZ.irange(9, 15);
+      s.hp -= dmg;
+      s.stress = Math.min(100, s.stress + 16);
+      s.addWound('Arañazo en el brazo');
+      s.gotHit = 1;
+      if (MZ.chance(0.4)) s.bitten = 1;
+      s.foe.dist = 1;
+      s.foe.round += 1;
+    },
+    text: [
+      'Te alcanza antes de que puedas apartarte. El hombro te choca contra la pared y durante un segundo solo hay polvo, un zumbido y el olor de su aliento, dulce y metálico a la vez.'
+    ],
+    options: function (s) {
+      var o = [];
+      var f = s.foe || { hp: 2, dist: 2, round: 3 };
+      if (s.bitten) o.push({ t: 'Mirar la herida.', to: 'mordida' });
+      else if (f.round >= 3) o.push({ t: 'Forcejear.', to: 'contacto_mal' });
+      else o.push({ t: 'Seguir.', to: 'contacto' });
+      return o;
+    }
+  };
+
+  S.contacto_mal = {
+    place: 'CALLE LARIOS', advance: 1,
+    onEnter: function (s) {
+      s.hp -= MZ.irange(14, 20);
+      s.stress = 100;
+      s.bitten = 1;
+      s.addWound('Mordedura en el hombro');
+    },
+    text: [
+      'Se te echa encima con todo el peso y te arrastra dos metros. La nuca te golpea el mármol. Ves su cara muy cerca, sin expresión, y sientes los dientes antes de entender dónde están.'
+    ],
+    options: function (s) {
+      if (s.hp <= 0) return [{ t: '…', to: 'muerte_contacto' }];
+      return [{ t: 'Apartarlo.', to: 'mordida' }];
+    }
+  };
+
+  S.mordida = {
+    place: 'CALLE LARIOS', advance: 1,
+    text: [
+      'Te ha mordido en el antebrazo. La piel se ha abierto como un sobre mal cerrado y la sangre te corre hasta la muñeca. No duele todavía. Eso es lo peor.'
+    ],
+    options: [
+      {
+        t: 'Mirar la herida y aguantar.', risk: true,
+        percent: { target: 55, action: 'Contagio por mordedura profunda' },
+        ok: 'infectado', fail: 'no_infectado'
+      }
+    ]
+  };
+
+  S.infectado = {
+    place: 'CALLE LARIOS', advance: 1,
+    onEnter: function (s) {
+      s.infected = true; s.incubation = 30; s.stress = Math.min(100, s.stress + 28);
+      s.addThread('Te han mordido. No hay tratamiento.');
+    },
+    text: [
+      'La marca tiene un cerco oscuro que ya no es un moratón. Lo sabes como se saben estas cosas: sin pruebas, sin análisis, sin que nadie te lo confirme.',
+      'Te quedan horas de persona.'
+    ],
+    options: [{ t: 'Seguir andando.', to: 'after' }]
+  };
+
+  S.no_infectado = {
+    place: 'CALLE LARIOS', advance: 1,
+    text: [
+      'La herida es fea, pero solo es una herida. Te la aprietas con la mano, cuentas hasta diez y no pasa nada. Nada que puedas notar.'
+    ],
+    options: [{ t: 'Seguir andando.', to: 'after' }]
+  };
+
+  S.huir = {
+    place: 'CALLE LARIOS', advance: 2,
+    onEnter: function (s) { s.fatigue = Math.min(100, s.fatigue + 12); s.stress = Math.min(100, s.stress + 8); s.foe = null; },
+    text: [
+      'Corres sin mirar atrás. El portal está a tres pasos, luego el zaguán, luego la escalera. Detrás de ti, algo choca contra la puerta abierta y se queda allí, arañando la madera.',
+      'No sabe abrir. Por ahora.'
+    ],
+    options: [{ t: 'Subir la escalera.', to: 'after' }]
+  };
+
+  S.huir_bar = {
+    place: 'BAR LARIOS', advance: 2,
+    onEnter: function (s) { s.stress = Math.min(100, s.stress + 10); s.foe = null; s.noise += 1; },
+    text: [
+      'Te dejas caer bajo la persiana y la bajas de un tirón. El metal golpea el suelo y el ruido te revienta los oídos. Al otro lado, dos manos arañan la chapa. Luego una frente. Luego nada.',
+      'Estás dentro, a oscuras, con un muerto detrás de la barra.'
+    ],
+    options: [{ t: 'Respirar.', to: 'after' }]
+  };
+
+  S.win = {
+    place: 'CALLE LARIOS', advance: 2,
+    onEnter: function (s) { s.stress = Math.min(100, s.stress + 6); s.foe = null; s.kills = (s.kills || 0) + 1; },
+    text: [
+      'El tercer golpe le dobla las rodillas. Cae de lado, con los ojos abiertos y la boca todavía abierta, y no vuelve a moverse. No hay nada épico en esto. Solo un cuerpo más en una calle que ya tenía uno.',
+      'Te tiemblan las manos. Te las miras como si fueran de otra persona.'
+    ],
+    options: [{ t: 'Apoyarte en la pared.', to: 'after' }]
+  };
+
+  /* ---- Después ---- */
+  S.after = {
+    place: 'CALLE LARIOS', advance: 3,
+    text: function (s) {
+      var p = ['Estás en la acera, con la espalda contra la pared y el pulso en las orejas.'];
+      if (s.wounds.length) p.push('Tienes ' + s.wounds.length + (s.wounds.length === 1 ? ' herida abierta' : ' heridas abiertas') + '. La sangre te corre por dentro de la manga y te mancha los dedos.');
+      else p.push('No tienes nada roto. Todavía.');
+      if (s.bitten) p.push('La marca del antebrazo te quema. Intentas no mirarla.');
+      p.push('La calle está en silencio otra vez. Un silencio que ya no es el de antes.');
+      return p;
+    },
+    options: function (s) {
+      var o = [];
+      if (s.has('vendas')) o.push({
+        t: 'Vendarte la herida.', to: 'after',
+        do: function (s) { s.useItem('vendas'); }
+      });
+      o.push({ t: 'Ir al portal de Larios 12.', to: 'portal' });
+      if (s.flags.bar_open) o.push({ t: 'Volver al bar y bajar la persiana.', to: 'refugio' });
+      o.push({ t: 'Cruzar hacia la Alameda.', to: 'alameda' });
+      return o;
+    }
+  };
+
+  /* ---- Portal ---- */
+  S.portal = {
+    place: 'PORTAL · LARIOS 12', advance: 4,
+    text: [
+      'El portal tiene la puerta entreabierta y la luz del zaguán encendida. En el segundo rellano, una mujer mayor con bata de flores mira por la barandilla.',
+      '—¿Qué quieres? —dice, sin gritar—. Si vienes a pedir, no tengo. Si vienes a avisar, ya lo sé.'
+    ],
+    options: [
+      {
+        t: '«Necesito pasar la noche. Solo la noche.»', risk: true,
+        check: { attr: 'car', skill: 'persuasion', dc: 13, mod: function (s) { return s.flags.nuria_saved ? 2 : 0; } },
+        ok: 'portal_ok', fail: 'portal_no'
+      },
+      { t: '«Hay un hombre muerto en la plaza del banco.»', to: 'portal', do: function (s) { s.flags.carmen_soft = 1; s.know('Doña Carmen', 'Vive en el segundo de Larios 12. Sabe que algo va mal.'); } },
+      { t: 'Forzar la puerta.', check: { attr: 'fue', skill: 'atletismo', dc: 16 }, ok: 'portal_ok', fail: 'portal_no', risk: true },
+      { t: 'Dejarlo.', to: 'after' }
+    ]
+  };
+
+  S.portal_ok = {
+    place: 'PORTAL · LARIOS 12', advance: 4,
+    onEnter: function (s) { s.flags.shelter = 'portal'; s.addThread('Doña Carmen te ha dejado pasar. La puerta tiene una cadena y una mirilla.'); },
+    text: [
+      'La mujer te mira un rato largo. Luego baja la escalera despacio, con la mano en la barandilla, y abre del todo.',
+      '—Segundo izquierda. No toques nada. Y si oyes algo en el patio, no salgas.',
+      'El zaguán huele a lejía y a comida de otra época.'
+    ],
+    options: [{ t: 'Entrar.', to: 'refugio' }]
+  };
+
+  S.portal_no = {
+    place: 'PORTAL · LARIOS 12', advance: 2,
+    onEnter: function (s) { s.stress = Math.min(100, s.stress + 10); },
+    text: [
+      '—No. —La mujer no levanta la voz—. Aquí no entra nadie que no conozca. Y a ti no te conozco.',
+      'La puerta se cierra con el ruido seco de una cadena que se tensa.'
+    ],
+    options: [{ t: 'Volver a la calle.', to: 'after' }]
+  };
+
+  /* ---- Alameda ---- */
+  S.alameda = {
+    place: 'ALAMEDA PRINCIPAL', advance: 5,
+    text: [
+      'La Alameda está cortada a la altura del Cervantes. Dos coches patrulla atravesados, una valla de plástico y un guardia civil de espaldas, con el chaleco puesto y la porra colgando.',
+      'Más allá, la calle sigue hasta el puerto. No hay nadie.'
+    ],
+    options: [
+      {
+        t: 'Explicarle que vives aquí.',
+        check: { attr: 'car', skill: 'persuasion', dc: 15, mod: function (s) { return s.hasTag('legal') ? 3 : 0; } },
+        ok: 'alameda_ok', fail: 'alameda_no', risk: true
+      },
+      { t: 'Obedecer y volver.', to: 'after' },
+      { t: 'Rodear por la acera y cruzar.', check: { attr: 'agi', skill: 'sigilo', dc: 14 }, ok: 'fin_alameda', fail: 'alameda_no', risk: true }
+    ]
+  };
+
+  S.alameda_ok = {
+    place: 'ALAMEDA PRINCIPAL', advance: 3,
+    text: [
+      'El guardia se gira. Tiene la cara de alguien que lleva doce horas diciendo que no a gente que no se lo merece.',
+      '—Por ahí no se pasa. —Señala hacia el centro—. Váyase a casa. Y si tiene casa, quédese dentro. Esto no va a arreglarse esta noche.'
+    ],
+    options: [{ t: 'Volver.', to: 'after' }]
+  };
+
+  S.alameda_no = {
+    place: 'ALAMEDA PRINCIPAL', advance: 3,
+    onEnter: function (s) { s.stress = Math.min(100, s.stress + 14); },
+    text: [
+      '—¡Alto! —La voz del guardia te llega antes que el gesto—. ¡Atrás!',
+      'La porra se levanta y tú ya estás retrocediendo, con las manos abiertas, murmurando que solo quieres pasar. No te cree. No tiene por qué.'
+    ],
+    options: [{ t: 'Volver al centro.', to: 'after' }]
+  };
+
+  /* ---- Refugio y finales ---- */
+  S.refugio = {
+    place: 'CALLE LARIOS', advance: 6,
+    text: [
+      'La ciudad ha cambiado de ruido. Ya no hay coches: hay sirenas, y entre las sirenas, algo que no es una sirena.',
+      'Tienes que decidir dónde pasar la noche. No hay una opción buena.'
+    ],
+    options: function (s) {
+      var o = [];
+      if (s.flags.shelter === 'portal') o.push({ t: 'El portal de Larios 12. Doña Carmen tiene la cadena puesta.', to: 'fin_portal' });
+      if (s.flags.bar_open) o.push({ t: 'El bar, con la persiana bajada.', to: 'fin_bar' });
+      o.push({ t: 'Cruzar la Alameda y salir del centro.', to: 'alameda' });
+      o.push({ t: 'Quedarte en la calle, sentado en el escalón.', to: 'fin_calle' });
+      return o;
+    }
+  };
+
+  S.fin_portal = {
+    place: 'PORTAL · LARIOS 12', advance: 20, end: true,
+    text: function (s) {
+      var p = [
+        'El segundo izquierda tiene dos camas, una mesa camilla y un crucifijo torcido. Doña Carmen te da una manta y un vaso de agua sin preguntar nada más.',
+        'Desde la ventana se ve la plaza. A las diez y media, algo cruza la calle Larios de norte a sur, muy despacio, como si buscase una dirección que ya no existe.'
+      ];
+      if (s.infected) p.push('A medianoche te sube la fiebre. No se lo dices a nadie. A las tres, la marca del brazo ha cambiado de color.');
+      else p.push('Duermes con la ropa puesta y el cuchillo debajo de la almohada. No duermes.');
+      return p;
+    }
+  };
+
+  S.fin_bar = {
+    place: 'BAR LARIOS', advance: 20, end: true,
+    text: function (s) {
+      var p = [
+        'Bajas la persiana hasta el suelo y pones una silla debajo. La radio sigue hablando en la cocina, cada vez más lejos, como si el mundo se estuviera apagando por dentro.',
+        'El hombre del delantal sigue boca abajo. Le tapas la cara con una servilleta. Es una tontería, pero lo haces.'
+      ];
+      if (s.infected) p.push('A medianoche te sube la fiebre. La marca del antebrazo ya no es una marca: es un mapa.');
+      else p.push('Amanece a las siete y media. Nadie llama a la persiana.');
+      return p;
+    }
+  };
+
+  S.fin_alameda = {
+    place: 'ALAMEDA · PUERTO', advance: 30, end: true,
+    text: function (s) {
+      var p = [
+        'Cruzas la Alameda por la acera, pegado a las fachadas, y el guardia no te ve. Al final de la calle, el puerto está negro y quieto. Un barco de carga espera fuera de la bocana, con las luces encendidas, y no se acerca.',
+        'Málaga se queda detrás de ti, con sus sirenas y sus ventanas encendidas. Caminas hacia el Paseo de los Curas sin mirar atrás.'
+      ];
+      if (s.infected) p.push('A la altura de la Farola te tiemblan las manos. Te sientas en un bolardo. Ya no sabes si estás cansado o si es otra cosa.');
+      else p.push('No sabes adónde vas. Sabes que no puedes volver.');
+      return p;
+    }
+  };
+
+  S.fin_calle = {
+    place: 'CALLE LARIOS', advance: 40, end: true,
+    onEnter: function (s) { s.hp -= 18; },
+    text: [
+      'Te sientas en el escalón del portal, con la espalda en la puerta y el cuchillo en el regazo. Al principio te dices que solo descansas un minuto.',
+      'El minuto se hace hora. A las tres de la mañana, el frío te despierta y ya no sabes dónde estás. A las cinco, algo te huele.'
+    ]
+  };
+
+  /* ---- Muerte ---- */
+  S.muerte_contacto = {
+    place: 'CALLE LARIOS', advance: 0, death: true,
+    text: [
+      'No hay un último pensamiento. Hay el mármol, y el peso, y el ruido de tu propia sangre en el oído.',
+      'A las once y cuarto, dos personas pasan por Larios con las manos en los bolsillos. Te ven y aceleran el paso. Nadie te toca. Nadie llama a nadie.',
+      'La ciudad sigue funcionando sin ti.'
+    ]
+  };
+
+  N.SCENES = S;
+  N.START = 'plaza';
+
+  MZ.NOVELA = N;
+})(window.MZ);
+
+</script>
+<script>
+/* ---- js/engine.js ---- */
+/* ============================================================
+   engine.js — el árbitro: estado, tiradas, escenas, guardado.
+   El motor no conoce Málaga: solo lee MZ.NOVELA.
+   ============================================================ */
+(function (MZ) {
+  'use strict';
+
+  var N = MZ.NOVELA;
+  var KEY = 'malagaz_novela_v1';
+
+  var G = {
+    state: null,
+    scene: null,
+    options: [],
+    pending: null,
+    dead: false,
+    started: false
+  };
+
+  /* ---------------------------------------------------------- estado */
+  function profById(id) {
+    for (var i = 0; i < N.PROF.length; i++) if (N.PROF[i].id === id) return N.PROF[i];
+    return N.PROF[0];
+  }
+
+  function hydrate(s) {
+    s.prof = profById(s.profId);
+    s.attrs = s.attrs || {};
+    s.skills = s.skills || {};
+    s.items = s.items || [];
+    s.wounds = s.wounds || [];
+    s.threads = s.threads || [];
+    s.history = s.history || [];
+    s.known = s.known || {};
+    s.flags = s.flags || {};
+
+    s.has = function (id, n) { var e = s.items.find(function (x) { return x.id === id; }); return !!e && e.n >= (n || 1); };
+    s.count = function (id) { var e = s.items.find(function (x) { return x.id === id; }); return e ? e.n : 0; };
+    s.add = function (id, n) {
+      if (!N.ITEMS[id]) return;
+      n = n || 1;
+      var e = s.items.find(function (x) { return x.id === id; });
+      if (e) e.n += n; else s.items.push({ id: id, n: n });
+    };
+    s.remove = function (id, n) {
+      n = n || 1;
+      var i = s.items.findIndex(function (x) { return x.id === id; });
+      if (i < 0) return false;
+      s.items[i].n -= n;
+      if (s.items[i].n <= 0) s.items.splice(i, 1);
+      return true;
+    };
+    s.useItem = function (id) {
+      var it = N.ITEMS[id];
+      if (!it || !s.has(id)) return false;
+      var u = it.use || {};
+      if (u.hambre) s.hunger = Math.min(100, s.hunger + u.hambre);
+      if (u.sed) s.thirst = Math.min(100, s.thirst + u.sed);
+      if (u.hp) s.hp = Math.min(s.maxHp, s.hp + u.hp);
+      if (u.estres) s.stress = MZ.clamp(s.stress + u.estres, 0, 100);
+      if (u.sangrado) s.wounds.forEach(function (w) { w.bleed = false; });
+      s.remove(id, 1);
+      s.note('Usas ' + it.n.toLowerCase() + '.');
+      return true;
+    };
+    s.hasTag = function (t) { return (s.tags || []).indexOf(t) >= 0; };
+    s.bestWeapon = function () {
+      var best = 0;
+      s.items.forEach(function (it) {
+        var d = N.ITEMS[it.id];
+        if (d && d.weapon && d.weapon > best) best = d.weapon;
+      });
+      return best;
+    };
+    s.addWound = function (name) {
+      if (s.wounds.some(function (w) { return w.name === name; })) return;
+      s.wounds.push({ name: name, bleed: true });
+    };
+    s.know = function (name, text) { s.known[name] = text; };
+    s.addThread = function (text) { s.threads.push({ t: text, open: true }); };
+    s.closeThread = function (frag) {
+      s.threads.forEach(function (t) { if (t.t.indexOf(frag) >= 0) t.open = false; });
+    };
+    s.note = function (text) { s.history.push({ at: s.time, kind: 'scene', text: text }); };
+    s.weight = function () {
+      var w = 0;
+      s.items.forEach(function (it) { var d = N.ITEMS[it.id]; if (d) w += (d.w || 0) * it.n; });
+      return Math.round(w * 10) / 10;
+    };
+    s.capacity = function () { return Math.max(6, Math.round((6 + s.attrs.fue * 2) * 10) / 10); };
+    return s;
+  }
+
+  G.newRun = function (profId, name) {
+    var p = profById(profId);
+    var s = {
+      v: 1,
+      name: (name || '').trim() || 'Sin nombre',
+      profId: p.id,
+      tags: p.tags.slice(),
+      attrs: {}, skills: {},
+      items: [],
+      hp: 0, maxHp: 0,
+      hunger: 82, thirst: 76, fatigue: 12, stress: 8,
+      wounds: [], infected: false, incubation: 0, bitten: false,
+      noise: 0, flags: {}, known: {}, threads: [], history: [],
+      time: 520, day: 1, scene: N.START, foe: null,
+      kills: 0, decisions: 0, gotHit: 0
+    };
+    N.ATTRS.forEach(function (a) { s.attrs[a.k] = p.attrs[a.k]; });
+    N.SKILLS.forEach(function (k) { s.skills[k.k] = p.skills[k.k] || 0; });
+    p.items.forEach(function (it) { s.items.push({ id: it[0], n: it[1] }); });
+    s.maxHp = 68 + s.attrs.res * 10;
+    s.hp = s.maxHp;
+    hydrate(s);
+    G.state = s;
+    G.dead = false;
+    G.started = true;
+    G.enter(N.START, { noTime: true });
+  };
+
+  G.loadRun = function () {
+    var raw = null;
+    try { raw = localStorage.getItem(KEY); } catch (e) { raw = null; }
+    if (!raw) return false;
+    var s;
+    try { s = JSON.parse(raw); } catch (e) { return false; }
+    if (!s || !s.scene || !N.SCENES[s.scene]) return false;
+    hydrate(s);
+    G.state = s;
+    G.dead = false;
+    G.started = true;
+    G.enter(s.scene, { noTime: true });
+    return true;
+  };
+
+  G.hasSave = function () {
+    try { return !!localStorage.getItem(KEY); } catch (e) { return false; }
+  };
+
+  G.save = function () {
+    if (!G.state || G.dead) return;
+    try {
+      var copy = JSON.parse(JSON.stringify(G.state));
+      localStorage.setItem(KEY, JSON.stringify(copy));
+    } catch (e) { /* sin almacenamiento: se juega igual */ }
+  };
+
+  G.clearSave = function () {
+    try { localStorage.removeItem(KEY); } catch (e) { /* nada */ }
+  };
+
+  /* ---------------------------------------------------------- tiempo */
+  G.advanceTime = function (min) {
+    var s = G.state;
+    if (!min) return;
+    s.time += min;
+    s.hunger = MZ.clamp(s.hunger - min * 0.16, 0, 100);
+    s.thirst = MZ.clamp(s.thirst - min * 0.22, 0, 100);
+    s.fatigue = MZ.clamp(s.fatigue + min * 0.09, 0, 100);
+    s.stress = MZ.clamp(s.stress - min * 0.10, 0, 100);
+    if (s.infected) {
+      s.incubation -= min;
+      if (s.incubation <= 0) G.die('infeccion');
+    }
+  };
+
+  G.attr = function (k) { return G.state.attrs[k] || 0; };
+  G.skill = function (k) { return G.state.skills[k] || 0; };
+  G.attrName = function (k) { for (var i = 0; i < N.ATTRS.length; i++) if (N.ATTRS[i].k === k) return N.ATTRS[i].n; return k; };
+  G.skillName = function (k) { for (var i = 0; i < N.SKILLS.length; i++) if (N.SKILLS[i].k === k) return N.SKILLS[i].n; return k; };
+
+  /* ---------------------------------------------------------- escenas */
+  G.enter = function (id, opts) {
+    opts = opts || {};
+    var depth = opts.depth || 0;
+    var sc = N.SCENES[id];
+    if (!sc) { MZ.warn('Escena inexistente: ' + id); return; }
+    var s = G.state;
+    s.scene = id;
+    G.scene = sc;
+
+    if (!opts.noTime) G.advanceTime(sc.advance || 0);
+
+    if (typeof sc.onEnter === 'function') {
+      var redirect = sc.onEnter(s);
+      if (redirect && redirect !== id && depth < 4) return G.enter(redirect, { depth: depth + 1, noTime: true });
+    }
+
+    if (s.hp <= 0) { G.die('contacto'); return; }
+    if (sc.death) { G.showDeath(sc); return; }
+
+    G.options = G.evalOptions();
+    G.save();
+    MZ.UI.renderScene(sc, G.options, s);
+  };
+
+  G.evalOptions = function () {
+    var s = G.state, sc = G.scene;
+    if (!s.foe && s.scene === 'contacto') s.foe = { hp: 2, dist: 8, round: 1 };
+    var raw = typeof sc.options === 'function' ? sc.options(s) : (sc.options || []);
+    return raw.map(function (o) {
+      var dis = false, reason = '';
+      if (o.if && !o.if(s)) dis = true;
+      if (o.need) {
+        if (o.need.item && !s.has(o.need.item, o.need.n || 1)) { dis = true; reason = 'Falta ' + N.ITEMS[o.need.item].n; }
+        if (o.need.tag && !s.hasTag(o.need.tag)) { dis = true; reason = 'No sabes'; }
+        if (o.need.flag && !s.flags[o.need.flag]) { dis = true; reason = 'Bloqueado'; }
+      }
+      return { o: o, disabled: dis, reason: reason };
+    });
+  };
+
+  G.choose = function (i) {
+    var entry = G.options[i];
+    if (!entry || entry.disabled || G.pending) return;
+    var s = G.state;
+    var o = entry.o;
+
+    s.decisions++;
+    s.history.push({ at: s.time, kind: 'choice', text: o.t });
+
+    G.applyCost(o.cost);
+    if (o.give) o.give.forEach(function (g) { s.add(g[0], g[1]); });
+    if (typeof o.do === 'function') o.do(s);
+    if (s.hp <= 0) { G.die('contacto'); return; }
+
+    if (o.check) { G.rollCheck(o); return; }
+    if (o.percent) { G.rollPercent(o); return; }
+    G.go(o.to);
+  };
+
+  G.applyCost = function (c) {
+    if (!c) return;
+    var s = G.state;
+    if (c.hp) s.hp = Math.max(0, s.hp + c.hp);
+    if (c.hambre) s.hunger = MZ.clamp(s.hunger + c.hambre, 0, 100);
+    if (c.sed) s.thirst = MZ.clamp(s.thirst + c.sed, 0, 100);
+    if (c.fatiga) s.fatigue = MZ.clamp(s.fatigue + c.fatiga, 0, 100);
+    if (c.estres) s.stress = MZ.clamp(s.stress + c.estres, 0, 100);
+    if (c.ruido) s.noise = Math.max(0, s.noise + c.ruido);
+    if (c.tiempo) G.advanceTime(c.tiempo);
+  };
+
+  G.go = function (id) {
+    if (!id) return;
+    G.pending = null;
+    G.enter(id);
+  };
+
+  /* ---------------------------------------------------------- tiradas */
+  G.rollCheck = function (o) {
+    var s = G.state;
+    var c = o.check;
+    var mod = typeof c.mod === 'function' ? c.mod(s) : (c.mod || 0);
+    var av = G.attr(c.attr), sv = G.skill(c.skill);
+    var d = MZ.d20(c.adv || 0);
+    var critMod = d.roll === 20 ? 5 : (d.roll === 1 ? -5 : 0);
+    var total = d.roll + av + sv + mod + critMod;
+    var success = total >= c.dc;
+    var result = {
+      action: o.t,
+      tag: (G.attrName(c.attr) + ' + ' + G.skillName(c.skill)).toUpperCase(),
+      dc: c.dc,
+      dice: d.rolls,
+      attrName: G.attrName(c.attr), attrVal: av,
+      skillName: G.skillName(c.skill), skillVal: sv,
+      mod: mod + critMod,
+      total: total,
+      success: success,
+      crit: d.roll === 20 ? 'success' : (d.roll === 1 ? 'fail' : null)
+    };
+    s.history.push({
+      at: s.time, kind: 'roll',
+      text: o.t + ' — D20 ' + d.roll + ' + ' + (av + sv + mod + critMod) + ' = ' + total + ' vs ' + c.dc + ' → ' + (success ? 'ÉXITO' : 'FRACASO')
+    });
+    G.pending = { ok: o.ok, fail: o.fail };
+    MZ.UI.showDice(result, function () {
+      var p = G.pending;
+      G.pending = null;
+      G.go(result.success ? p.ok : p.fail);
+    });
+  };
+
+  G.rollPercent = function (o) {
+    var s = G.state;
+    var p = o.percent;
+    var roll = MZ.d100();
+    var success = roll <= p.target;
+    s.history.push({
+      at: s.time, kind: 'roll',
+      text: p.action + ' — D100 ' + roll + ' vs ' + p.target + ' → ' + (success ? 'SÍ' : 'NO')
+    });
+    G.pending = { ok: o.ok, fail: o.fail };
+    MZ.UI.showPercent({
+      action: p.action, target: p.target, roll: roll, success: success
+    }, function () {
+      var q = G.pending;
+      G.pending = null;
+      G.go(success ? q.ok : q.fail);
+    });
+  };
+
+  /* ---------------------------------------------------------- muerte */
+  G.showDeath = function (sc) {
+    var s = G.state;
+    G.dead = true;
+    G.clearSave();
+    var text = sc.text;
+    if (typeof text === 'function') text = text(s);
+    text = Array.isArray(text) ? text : [text];
+    MZ.UI.showDeath(text, G.stats());
+  };
+
+  G.die = function (cause) {
+    if (G.dead) return;
+    var s = G.state;
+    s.hp = Math.max(0, s.hp);
+    var texts = {
+      contacto: [
+        'No hay un último pensamiento. Hay el mármol, y el peso, y el ruido de tu propia sangre en el oído.',
+        'A las once y cuarto, dos personas pasan por Larios con las manos en los bolsillos. Te ven y aceleran el paso. Nadie te toca. Nadie llama a nadie.',
+        'La ciudad sigue funcionando sin ti.'
+      ],
+      infeccion: [
+        'La fiebre te come las horas. Primero dejas de tener sed. Luego dejas de tener frío. Luego dejas de tener miedo.',
+        'A las cuatro de la mañana ya no sabes cómo te llamas. A las cinco, alguien te encuentra sentado en un portal de Larios y no se acerca.',
+        'No hay un momento exacto en el que dejas de ser tú. Solo hay un momento en el que el cuerpo se levanta sin ti.'
+      ],
+      heridas: [
+        'La sangre se va por donde puede y tú te sientas en el suelo porque el suelo es lo único que no se mueve.',
+        'Alguien pasa a lo lejos. No se para. No es culpa suya: tú tampoco te pararías.'
+      ]
+    };
+    var text = texts[cause] || [
+      'No hay un último pensamiento. Hay el suelo, el ruido de tu propia sangre y una ciudad que sigue funcionando sin ti.'
+    ];
+    G.dead = true;
+    G.clearSave();
+    MZ.UI.showDeath(text, G.stats());
+  };
+
+  G.stats = function () {
+    var s = G.state;
+    var mins = Math.max(1, s.time - 520);
+    return [
+      { n: MZ.fmtDur(mins), l: 'SOBREVIVISTE' },
+      { n: s.decisions, l: 'DECISIONES' },
+      { n: s.wounds.length, l: 'HERIDAS' }
+    ];
+  };
+
+  MZ.Game = G;
+})(window.MZ);
+
+</script>
+<script>
+/* ---- js/ui.js ---- */
+/* ============================================================
+   ui.js — lectura, opciones, tiradas, paneles y pantallas.
+   ============================================================ */
+(function (MZ) {
+  'use strict';
+
+  var N = MZ.NOVELA;
+  var G = MZ.Game;
+
+  var ATTR3 = { fue: 'FUE', agi: 'AGI', res: 'RES', per: 'PER', int: 'INT', car: 'CAR' };
+  var SKILL3 = { atletismo: 'ATL', pelea: 'PEL', armas: 'ARM', sigilo: 'SIG', medicina: 'MED', mecanica: 'MEC', persuasion: 'PRS', callejeo: 'CAL' };
+
+  var UI = { selected: null, fs: 19 };
+
+  function $(id) { return document.getElementById(id); }
+
+  UI.init = function (game) {
+    UI.g = game;
+    UI.el = {};
+    ['play', 'place', 'clock', 'prose', 'options', 'endnote', 'status',
+      'st-hp', 'st-hu', 'st-th', 'st-fa', 'st-es', 'st-wounds',
+      'screenTitle', 'screenCreate', 'screenDeath', 'screenHow',
+      'profs', 'preview', 'inp-name', 'btn-start', 'btn-new', 'btn-continue', 'btn-how', 'btn-how-close', 'btn-again',
+      'dice', 'dice-tag', 'dice-dc', 'dice-action', 'die1', 'die2', 'dm-attr', 'dm-skill', 'dm-mod', 'dm-total', 'dice-res', 'dice-next',
+      'panel', 'panel-title', 'panel-body', 'panel-close',
+      'death-title', 'death-text', 'death-stats', 'loading'
+    ].forEach(function (id) { UI.el[id] = $(id); });
+
+    try { UI.fs = parseInt(localStorage.getItem('mz_fs') || '19', 10) || 19; } catch (e) { UI.fs = 19; }
+    UI.applyFont();
+
+    UI.buildProfs();
+    UI.el['btn-how-close'].addEventListener('click', function () { UI.showScreen(UI.prevScreen || 'title'); });
+    UI.el['panel-close'].addEventListener('click', function () { UI.closePanel(); });
+    UI.el['dice-next'].addEventListener('click', function () { UI.diceNext(); });
+
+    document.addEventListener('click', function (e) {
+      var t = e.target;
+      while (t && t !== document.body) {
+        if (t.dataset) {
+          if (t.dataset.panel) { UI.showPanel(t.dataset.panel); return; }
+          if (t.dataset.use) {
+            G.state.useItem(t.dataset.use);
+            UI.showPanel('ficha');
+            UI.status(G.state);
+            return;
+          }
+          if (t.dataset.fs) {
+            UI.fs = parseInt(t.dataset.fs, 10);
+            UI.applyFont();
+            try { localStorage.setItem('mz_fs', String(UI.fs)); } catch (err) { }
+            UI.showPanel('ajustes');
+            return;
+          }
+          if (t.dataset.act === 'title') {
+            UI.closePanel();
+            UI.showScreen('title');
+            UI.refreshContinue();
+            return;
+          }
+          if (t.dataset.act === 'wipe') {
+            if (window.confirm && !window.confirm('¿Borrar la partida? No se puede deshacer.')) return;
+            G.clearSave();
+            location.reload();
+            return;
+          }
+        }
+        t = t.parentNode;
+      }
+    });
+  };
+
+  /* ------------------------------------------------------- pantallas */
+  UI.showScreen = function (name) {
+    var map = { title: 'screenTitle', create: 'screenCreate', death: 'screenDeath', how: 'screenHow' };
+    Object.keys(map).forEach(function (k) { UI.el[map[k]].classList.add('hidden'); });
+    if (name && map[name]) {
+      UI.el[map[name]].classList.remove('hidden');
+      if (name === 'how') UI.prevScreen = UI.prevScreen || 'title';
+    }
+    UI.el.play.classList.toggle('hidden', name !== null);
+  };
+
+  UI.refreshContinue = function () {
+    var b = document.getElementById('btn-continue');
+    if (b) b.disabled = !G.hasSave();
+  };
+
+  UI.startPlay = function () {
+    UI.showScreen(null);
+  };
+
+  UI.showDeath = function (texts, stats) {
+    UI.el['death-text'].innerHTML = '';
+    texts.forEach(function (t) {
+      var p = document.createElement('p');
+      p.textContent = t;
+      UI.el['death-text'].appendChild(p);
+    });
+    UI.el['death-stats'].innerHTML = stats.map(function (s) {
+      return '<div><div class="n">' + s.n + '</div><div class="l">' + s.l + '</div></div>';
+    }).join('');
+    UI.showScreen('death');
+  };
+
+  UI.hideLoading = function () {
+    var l = UI.el.loading;
+    if (!l) return;
+    l.classList.add('done');
+    setTimeout(function () { l.style.display = 'none'; }, 420);
+  };
+
+  /* -------------------------------------------------------- creación */
+  UI.buildProfs = function () {
+    var box = UI.el.profs;
+    box.innerHTML = '';
+    N.PROF.forEach(function (p) {
+      var b = document.createElement('button');
+      b.className = 'pcard';
+      b.type = 'button';
+      b.dataset.prof = p.id;
+      var attrs = N.ATTRS.map(function (a) {
+        var v = p.attrs[a.k];
+        return '<span class="' + (v >= 2 ? 'hi' : '') + '">' + ATTR3[a.k] + ' <b>' + (v >= 0 ? '+' : '') + v + '</b></span>';
+      }).join('');
+      b.innerHTML = '<span class="sector">' + p.sector + '</span>' +
+        '<span class="body"><span class="ttl">' + p.title + '<span class="age">' + p.age + ' años</span></span>' +
+        '<span class="desc">' + p.desc + '</span>' +
+        '<span class="attrs">' + attrs + '</span></span>';
+      b.addEventListener('click', function () { UI.selectProf(p.id); });
+      box.appendChild(b);
+    });
+  };
+
+  UI.selectProf = function (id) {
+    UI.selected = id;
+    var cards = UI.el.profs.querySelectorAll('.pcard');
+    for (var i = 0; i < cards.length; i++) cards[i].classList.toggle('sel', cards[i].dataset.prof === id);
+    UI.previewProf(id);
+    UI.el['btn-start'].disabled = false;
+  };
+
+  UI.previewProf = function (id) {
+    var p = null;
+    for (var i = 0; i < N.PROF.length; i++) if (N.PROF[i].id === id) p = N.PROF[i];
+    if (!p) return;
+    var sk = N.SKILLS.filter(function (s) { return (p.skills[s.k] || 0) > 0; })
+      .map(function (s) { return s.n + ' <b>' + (p.skills[s.k] > 0 ? '+' : '') + p.skills[s.k] + '</b>'; }).join(' · ');
+    var items = p.items.map(function (it) {
+      var d = N.ITEMS[it[0]];
+      return d ? d.n + (it[1] > 1 ? ' ×' + it[1] : '') : it[0];
+    }).join(' · ');
+    UI.el.preview.innerHTML =
+      '<span class="tagline">' + p.perk + '</span>' +
+      '<div><b>Habilidades:</b> ' + sk + '</div>' +
+      '<div><b>Llevas:</b> ' + items + '</div>' +
+      '<div><b>Etiquetas:</b> ' + p.tags.join(' · ') + '</div>';
+  };
+
+  /* ---------------------------------------------------------- escena */
+  UI.renderScene = function (scene, options, s) {
+    UI.startPlay();
+    window.scrollTo(0, 0);
+    UI.el.place.textContent = scene.place || 'MÁLAGA';
+    UI.el.clock.textContent = 'DÍA ' + s.day + ' · ' + MZ.fmtClock(s.time);
+
+    var text = scene.text;
+    if (typeof text === 'function') text = text(s);
+    text = Array.isArray(text) ? text : String(text || '').split('\n\n');
+
+    var prose = UI.el.prose;
+    prose.innerHTML = '';
+    var first = true;
+    text.forEach(function (par) {
+      var p = document.createElement('p');
+      p.textContent = par;
+      if (first && /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/.test(par)) p.className = 'dc';
+      first = false;
+      prose.appendChild(p);
+    });
+
+    var nav = UI.el.options;
+    nav.innerHTML = '';
+
+    if (scene.end) {
+      UI.el.endnote.classList.remove('hidden');
+      UI.el.endnote.innerHTML = '<b>FIN DEL FRAGMENTO</b> · Aquí termina la primera hora del Día 1. ' +
+        'La versión 0.3 continúa hasta la noche, con el mapa, más escenas y tres finales.' +
+        '<br><br><button class="big" id="btn-end">VOLVER AL INICIO</button>';
+      var be = document.getElementById('btn-end');
+      if (be) be.addEventListener('click', function () { UI.showScreen('title'); });
+      UI.status(s);
+      return;
+    }
+    UI.el.endnote.classList.add('hidden');
+    UI.el.endnote.innerHTML = '';
+
+    options.forEach(function (entry, i) {
+      var o = entry.o;
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'opt' + (o.risk ? ' risk' : '') + (entry.disabled ? ' dis' : '');
+      b.disabled = !!entry.disabled;
+      var req = '';
+      if (o.check) {
+        req = (ATTR3[o.check.attr] || '') + ' + ' + (SKILL3[o.check.skill] || '') + ' · CD ' + o.check.dc;
+      } else if (o.percent) {
+        req = 'D100 · ' + o.percent.target + ' %';
+      } else if (entry.disabled) {
+        req = entry.reason;
+      }
+      b.innerHTML = '<span class="num">' + (i + 1) + '</span><span class="lbl">' + o.t + '</span>' +
+        (req ? '<span class="req' + (o.check ? ' dc' : '') + '">' + req + '</span>' : '');
+      if (!entry.disabled) b.addEventListener('click', function () { UI.g.choose(i); });
+      nav.appendChild(b);
+    });
+
+    UI.status(s);
+  };
+
+  UI.status = function (s) {
+    var e = UI.el;
+    e['st-hp'].textContent = Math.round(s.hp) + '/' + s.maxHp;
+    e['st-hp'].className = s.hp / s.maxHp < 0.35 ? 'warn' : '';
+    e['st-hu'].textContent = Math.round(s.hunger);
+    e['st-th'].textContent = Math.round(s.thirst);
+    e['st-fa'].textContent = Math.round(s.fatigue);
+    e['st-es'].textContent = Math.round(s.stress);
+    var w = 'SIN HERIDAS';
+    if (s.wounds.length) w = s.wounds.map(function (x) { return x.name.toUpperCase(); }).join(' · ');
+    if (s.bitten) w += ' · MORDEDURA';
+    e['st-wounds'].innerHTML = '<span>ESTADO</span><b>' + w + '</b>';
+  };
+
+  /* ---------------------------------------------------------- tiradas */
+  UI.showDice = function (r, cb) {
+    var e = UI.el;
+    UI._cb = cb;
+    e.dice.classList.remove('hidden');
+    e['dice-tag'].textContent = r.tag || 'TIRADA DE HABILIDAD';
+    e['dice-dc'].textContent = 'DIFICULTAD ' + r.dc;
+    e['dice-action'].textContent = r.action;
+    e.die1.textContent = '?';
+    e.die2.textContent = '?';
+    e.die2.classList.toggle('off', !r.dice || r.dice.length < 2);
+    e['dm-attr'].textContent = r.attrName + ' ' + (r.attrVal >= 0 ? '+' : '') + r.attrVal;
+    e['dm-skill'].textContent = r.skillName + ' ' + (r.skillVal >= 0 ? '+' : '') + r.skillVal;
+    e['dm-mod'].textContent = (r.mod >= 0 ? '+' : '') + r.mod;
+    e['dm-total'].textContent = '—';
+    e['dice-res'].textContent = 'Tirando…';
+    e['dice-res'].className = 'dice-res';
+    e['dice-next'].disabled = true;
+
+    var t0 = performance.now();
+    function anim() {
+      if (performance.now() - t0 < 360) {
+        e.die1.textContent = 1 + ((Math.random() * 20) | 0);
+        if (r.dice && r.dice.length > 1) e.die2.textContent = 1 + ((Math.random() * 20) | 0);
+        requestAnimationFrame(anim);
+      } else {
+        e.die1.textContent = r.dice[0];
+        if (r.dice && r.dice.length > 1) e.die2.textContent = r.dice[1];
+        e['dm-total'].textContent = r.total;
+        var txt, cls;
+        if (r.crit === 'success') { txt = 'ÉXITO CRÍTICO'; cls = 'crit'; }
+        else if (r.crit === 'fail') { txt = 'PIFIA'; cls = 'crit'; }
+        else if (r.success) { txt = 'ÉXITO'; cls = 'ok'; }
+        else { txt = 'FRACASO'; cls = 'no'; }
+        e['dice-res'].innerHTML = '<span class="' + cls + '">' + txt + '</span><span>' + (r.adv ? '' : '') + '</span>';
+        e['dice-next'].disabled = false;
+        e['dice-next'].focus();
+      }
+    }
+    anim();
+  };
+
+  UI.showPercent = function (r, cb) {
+    var e = UI.el;
+    UI._cb = cb;
+    e.dice.classList.remove('hidden');
+    e['dice-tag'].textContent = 'CONTAGIO';
+    e['dice-dc'].textContent = 'UMBRAL ' + r.target + ' %';
+    e['dice-action'].textContent = r.action;
+    e['dm-attr'].textContent = 'D100';
+    e['dm-skill'].textContent = '—';
+    e['dm-mod'].textContent = '—';
+    e['dm-total'].textContent = '—';
+    e.die2.classList.add('off');
+    e['dice-res'].textContent = 'Tirando…';
+    e['dice-res'].className = 'dice-res';
+    e['dice-next'].disabled = true;
+
+    var t0 = performance.now();
+    function anim() {
+      if (performance.now() - t0 < 380) {
+        e.die1.textContent = MZ.d100();
+        requestAnimationFrame(anim);
+      } else {
+        e.die1.textContent = r.roll;
+        e['dm-total'].textContent = r.roll;
+        e['dice-res'].innerHTML = '<span class="' + (r.success ? 'no' : 'ok') + '">' +
+          (r.success ? 'INFECTADO' : 'NO INFECTADO') + '</span><span>' + r.roll + ' / ' + r.target + '</span>';
+        e['dice-next'].disabled = false;
+        e['dice-next'].focus();
+      }
+    }
+    anim();
+  };
+
+  UI.diceNext = function () {
+    if (UI.el['dice-next'].disabled) return;
+    UI.el.dice.classList.add('hidden');
+    var cb = UI._cb;
+    UI._cb = null;
+    if (cb) cb();
+  };
+
+  /* ----------------------------------------------------------- panel */
+  UI.showPanel = function (kind) {
+    if (!G.state) return;
+    UI.panelKind = kind;
+    var titles = { ficha: 'FICHA', diario: 'DIARIO', ajustes: 'AJUSTES' };
+    UI.el['panel-title'].textContent = titles[kind] || 'PANEL';
+    UI.el['panel-body'].innerHTML = kind === 'ficha' ? UI.ficha() : kind === 'diario' ? UI.diario() : UI.ajustes();
+    UI.el.panel.classList.remove('hidden');
+  };
+
+  UI.closePanel = function () {
+    UI.el.panel.classList.add('hidden');
+  };
+
+  UI.ficha = function () {
+    var s = G.state, p = s.prof, h = '';
+    h += '<h3>IDENTIDAD</h3>';
+    h += kv('Nombre', s.name);
+    h += kv('Oficio', p.title + ' · ' + p.sector);
+    h += kv('Edad', p.age + ' años');
+    h += kv('Carga', s.weight() + ' / ' + s.capacity() + ' kg');
+    h += kv('Estado', s.bitten ? 'MORDIDO' : (s.wounds.length ? 'HERIDO' : 'ESTABLE'));
+    if (s.infected) h += '<div class="thread open">Una mordedura. No hay tratamiento. Te queda ' + Math.max(0, Math.round(s.incubation)) + ' min de persona.</div>';
+
+    h += '<div class="panel-grid"><div><h3>ATRIBUTOS</h3>';
+    N.ATTRS.forEach(function (a) { h += kv(a.n, (s.attrs[a.k] >= 0 ? '+' : '') + s.attrs[a.k]); });
+    h += '</div><div><h3>HABILIDADES</h3>';
+    N.SKILLS.forEach(function (k) { h += kv(k.n, (s.skills[k.k] >= 0 ? '+' : '') + s.skills[k.k]); });
+    h += '</div></div>';
+
+    h += '<h3>LO QUE SABES HACER</h3><div class="thread">' + p.perk + '</div>';
+    h += '<div>' + p.tags.map(function (t) { return '<span class="pill">' + t + '</span>'; }).join('') + '</div>';
+
+    h += '<h3>HERIDAS</h3>';
+    if (!s.wounds.length) h += '<div class="thread">Sin heridas abiertas.</div>';
+    else s.wounds.forEach(function (w) { h += '<div class="thread">' + w.name + (w.bleed ? ' — <b style="color:#e07168">sangrando</b>' : '') + '</div>'; });
+
+    h += '<h3>EQUIPO</h3>';
+    if (!s.items.length) h += '<div class="thread">Nada.</div>';
+    s.items.forEach(function (it) {
+      var d = N.ITEMS[it.id];
+      if (!d) return;
+      h += '<div class="itm"><span class="nm">' + d.n + ' <b>×' + it.n + '</b><i>' + (d.d || '') + '</i></span>' +
+        (d.use ? '<button class="use" data-use="' + it.id + '">USAR</button>' : '') + '</div>';
+    });
+    return h;
+  };
+
+  UI.diario = function () {
+    var s = G.state, h = '';
+    h += '<h3>DÍA 1 · ACTO I · LA MAÑANA</h3>';
+    h += '<div class="thread">' + MZ.fmtClock(s.time) + ' · ' + (G.scene ? G.scene.place : '') + '</div>';
+
+    h += '<h3>HILOS ABIERTOS</h3>';
+    var open = s.threads.filter(function (t) { return t.open; });
+    if (!open.length) h += '<div class="thread">Ninguno. Todavía.</div>';
+    open.forEach(function (t) { h += '<div class="thread open">' + t.t + '</div>'; });
+
+    var closed = s.threads.filter(function (t) { return !t.open; });
+    if (closed.length) {
+      h += '<h3>CERRADOS</h3>';
+      closed.forEach(function (t) { h += '<div class="thread">' + t.t + '</div>'; });
+    }
+
+    h += '<h3>PERSONAS</h3>';
+    var keys = Object.keys(s.known);
+    if (!keys.length) h += '<div class="thread">Todavía no conoces a nadie.</div>';
+    keys.forEach(function (k) { h += '<div class="thread"><b>' + k + '</b><br>' + s.known[k] + '</div>'; });
+
+    h += '<h3>REGISTRO</h3>';
+    var hist = s.history.slice(-24);
+    if (!hist.length) h += '<div class="thread">Sin anotaciones.</div>';
+    hist.forEach(function (x) {
+      h += '<div class="hist"><b>' + MZ.fmtClock(x.at) + '</b> · ' + x.text + '</div>';
+    });
+    return h;
+  };
+
+  UI.ajustes = function () {
+    var h = '';
+    h += '<h3>LECTURA</h3>';
+    h += '<div class="thread">Tamaño de letra</div>';
+    h += '<div style="display:flex;gap:6px;margin:6px 0 16px">' +
+      [17, 19, 22].map(function (n) {
+        return '<button class="use" data-fs="' + n + '" style="' + (UI.fs === n ? 'border-color:#d9a441;color:#d9a441' : '') + '">' +
+          (n === 17 ? 'PEQUEÑA' : n === 19 ? 'NORMAL' : 'GRANDE') + '</button>';
+      }).join('') + '</div>';
+    h += '<h3>PARTIDA</h3>';
+    h += '<div class="thread">Se guarda sola en cada escena. Si mueres, se borra.</div>';
+    h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">' +
+      '<button class="use" data-act="title">VOLVER AL TÍTULO</button>' +
+      '<button class="use" data-act="wipe" style="border-color:#7d221d;color:#e07168">BORRAR PARTIDA</button></div>';
+    h += '<h3>ACERCA DE</h3>';
+    h += '<div class="thread">MÁLAGA Z · Los días del silencio · novela de supervivencia 0.2.<br>' +
+      'Texto, dibujo y código propios. Sin assets externos. Sin telemetría: la partida vive en tu navegador.</div>';
+    return h;
+  };
+
+  function kv(a, b) { return '<div class="kv"><span>' + a + '</span><b>' + b + '</b></div>'; }
+
+  UI.applyFont = function () {
+    document.documentElement.style.setProperty('--read', UI.fs + 'px');
+  };
+
+  MZ.UI = UI;
+})(window.MZ);
+
+</script>
+<script>
+/* ---- js/main.js ---- */
+/* ============================================================
+   main.js — arranque, botones y teclado.
+   ============================================================ */
+(function (MZ) {
+  'use strict';
+
+  var G = MZ.Game, UI = MZ.UI;
+
+  var M = {
+    boot: function () {
+      UI.init(G);
+      UI.showScreen('title');
+      M.refreshContinue();
+      UI.hideLoading();
+      M.bind();
+      M.dev();
+    },
+
+    /* Atajos de desarrollo: ?dev=1&p=abogado&roll=1&panel=ficha&death=1 */
+    dev: function () {
+      var q = '';
+      try { q = (typeof location !== 'undefined' ? location.search : '') || ''; } catch (e) { q = ''; }
+      if (!/[?&]dev=1/.test(q)) return;
+      var m = q.match(/[?&]p=([a-z]+)/);
+      var nm = q.match(/[?&]n=([^&]+)/);
+      UI.showScreen(null);
+      G.newRun(m ? m[1] : 'camarero', nm ? decodeURIComponent(nm[1]) : '');
+      if (/[?&]roll=1/.test(q)) {
+        G.enter('bar_1');
+        var idx = -1;
+        for (var i = 0; i < G.options.length; i++) if (G.options[i].o.check) { idx = i; break; }
+        if (idx >= 0) G.choose(idx);
+      } else if (/[?&]s=([a-z0-9_]+)/.test(q)) {
+        G.enter(q.match(/[?&]s=([a-z0-9_]+)/)[1]);
+      } else if (/[?&]panel=([a-z]+)/.test(q)) {
+        UI.showPanel(q.match(/[?&]panel=([a-z]+)/)[1]);
+      } else if (/[?&]screen=create/.test(q)) {
+        UI.showScreen('create');
+      } else if (/[?&]death=1/.test(q)) {
+        G.state.hp = 1;
+        G.die('contacto');
+      }
+      if (/[?&]debug=1/.test(q)) {
+        setTimeout(function () {
+          var st = document.getElementById('stage');
+          var pr = document.getElementById('prose');
+          var tb = document.getElementById('topbar');
+          document.title = [window.innerWidth, document.documentElement.clientWidth,
+            st ? st.offsetWidth : -1, pr ? pr.offsetWidth : -1, tb ? tb.offsetWidth : -1].join('/');
+        }, 250);
+      }
+    },
+
+    refreshContinue: function () {
+      UI.refreshContinue();
+    },
+
+    bind: function () {
+      var el = function (id) { return document.getElementById(id); };
+
+      el('btn-new').addEventListener('click', function () {
+        UI.selected = null;
+        el('btn-start').disabled = true;
+        el('preview').innerHTML = '<span class="dim">Elige un oficio para ver la ficha.</span>';
+        var cards = document.querySelectorAll('.pcard');
+        for (var i = 0; i < cards.length; i++) cards[i].classList.remove('sel');
+        UI.showScreen('create');
+        setTimeout(function () { el('inp-name').focus(); }, 60);
+      });
+
+      el('btn-continue').addEventListener('click', function () {
+        if (G.loadRun()) UI.startPlay();
+        else M.refreshContinue();
+      });
+
+      el('btn-how').addEventListener('click', function () {
+        UI.prevScreen = 'title';
+        UI.showScreen('how');
+      });
+
+      el('btn-how-close').addEventListener('click', function () {
+        UI.showScreen(UI.prevScreen || 'title');
+      });
+
+      el('btn-start').addEventListener('click', function () {
+        if (!UI.selected) return;
+        var name = (el('inp-name').value || '').trim();
+        G.newRun(UI.selected, name);
+      });
+
+      el('btn-again').addEventListener('click', function () {
+        UI.selected = null;
+        el('btn-start').disabled = true;
+        el('preview').innerHTML = '<span class="dim">Elige un oficio para ver la ficha.</span>';
+        var cards = document.querySelectorAll('.pcard');
+        for (var i = 0; i < cards.length; i++) cards[i].classList.remove('sel');
+        UI.showScreen('create');
+        M.refreshContinue();
+      });
+
+      window.addEventListener('keydown', function (e) {
+        var tag = (e.target && e.target.tagName) || '';
+        if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+        var diceOpen = !UI.el.dice.classList.contains('hidden');
+        var panelOpen = !UI.el.panel.classList.contains('hidden');
+
+        if (diceOpen) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            UI.diceNext();
+          }
+          return;
+        }
+
+        if (panelOpen) {
+          if (e.key === 'Escape' || e.key.toLowerCase() === 'f' || e.key.toLowerCase() === 'j') UI.closePanel();
+          return;
+        }
+
+        if (UI.el.play.classList.contains('hidden')) return;
+
+        if (/^[1-9]$/.test(e.key)) {
+          e.preventDefault();
+          G.choose(parseInt(e.key, 10) - 1);
+          return;
+        }
+        var k = e.key.toLowerCase();
+        if (k === 'f') { UI.showPanel('ficha'); }
+        else if (k === 'j') { UI.showPanel('diario'); }
+        else if (k === 'escape') { UI.showPanel('ajustes'); }
+      });
+    }
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { M.boot(); });
+  } else {
+    M.boot();
+  }
+
+  MZ.Main = M;
+})(window.MZ);
+
+</script>
+</body>
+</html>
